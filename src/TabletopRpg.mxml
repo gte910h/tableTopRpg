@@ -1,17 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
-    creationComplete="appCreationComplete(event);"
-    horizontalAlign="center" verticalAlign="center">
-    <mx:Script>
-        <![CDATA[
-        import mx.core.UIComponent;
-        import mx.events.FlexEvent;
+    creationComplete="Startup();"
+    horizontalAlign="center" verticalAlign="center"  width='400' height='300' backgroundColor='#cccccc' >
+		
+	<mx:Label id="exclaimation"></mx:Label>	
+		
+	<mx:Script source="Main.as" />
 
-        private function appCreationComplete(event:FlexEvent):void
-        {
-            var main:Main = new Main(this);
-        }
-
-        ]]>
-    </mx:Script>
 </mx:Application>

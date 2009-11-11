@@ -1,5 +1,4 @@
-﻿package
-{
+﻿
     import flash.events.Event;
     import flash.display.Sprite;
     import flash.events.MouseEvent;
@@ -12,11 +11,9 @@
     import mx.core.UIComponent;
     import mx.events.FlexEvent;
 
-    [SWF(width='400', height='300', backgroundColor='#cccccc', framerate='12')]
+   
 
-    public class Main
-    {
-        public const DO_WAVE:Boolean = false;
+        public const DO_WAVE:Boolean = true;
 
         private var wave:Wave;
         private var mGadget:UIComponent;
@@ -24,9 +21,10 @@
         private var txtDisplay:Text;
         private var btnIncrement:Button;
 
-        public function Main(gadget:UIComponent):void
+        public function Startup():void
         {
-            mGadget = gadget;
+            mGadget = this;
+
 
             txtDisplay = new Text();
             txtDisplay.text = "What the?";
@@ -57,6 +55,12 @@
 
         private function increment(evt:MouseEvent):void
         {
+			if (!wave) 
+			{
+				Alert.show("Wave does not exist");
+				return;
+			}
+			
             var strCount:String = wave.getState().getStringValue("count");
             var numCount:Number = 0;
             if (strCount != null)
@@ -79,5 +83,4 @@
             }
             txtDisplay.text = "Count is " + numCount;
         }
-    }
-}
+    
