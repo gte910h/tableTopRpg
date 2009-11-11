@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
     creationComplete="Startup();"
-    horizontalAlign="center" verticalAlign="center"  width='400' height='300' backgroundColor="#A9C0E7" >
+    horizontalAlign="center" verticalAlign="center"  width='300' height='200' backgroundColor="#A9C0E7" >
 		
 	<mx:Text id="txtDisplay" text="What the?" />
 	<mx:Button	id="btnIncrement"  label="Increment me!"/>
