@@ -49,11 +49,10 @@
 
         private function increment(evt:MouseEvent):void
         {
-			if (!wave) 
-			{
-				Alert.show("Wave does not exist");
-				return;
-			}
+            if (!wave) {
+                // something intellegent here
+                return; //prevent explosions
+            }
 			
             var strCount:String = wave.getState().getStringValue("count");
             var numCount:Number = 0;
