@@ -12,30 +12,24 @@
     import mx.events.FlexEvent;
 
    
+//
+//   This is already an implicit subclass of the container...you don't usually see them make a class here.
+//
+//
 
+	
+	
         public const DO_WAVE:Boolean = true;
 
         private var wave:Wave;
         private var mGadget:UIComponent;
 
-        private var txtDisplay:Text;
-        private var btnIncrement:Button;
+//        private var txtDisplay:Text;
+  //      private var btnIncrement:Button;
 
         public function Startup():void
         {
             mGadget = this;
-
-
-            txtDisplay = new Text();
-            txtDisplay.text = "What the?";
-            mGadget.addChild(txtDisplay);
-
-            btnIncrement = new Button();
-            btnIncrement.label = "Increment me!";
-            btnIncrement.addEventListener(FlexEvent.CREATION_COMPLETE, buttonCreationComplete);
-            mGadget.addChild(btnIncrement);
-
-
             if (DO_WAVE)
             {
                 if (wave == null)
