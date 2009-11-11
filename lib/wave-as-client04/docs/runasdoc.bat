@@ -1,0 +1,1 @@
+"C:\Program Files\Adobe\Flex Builder 3\sdks\3.0.0\bin\asdoc" -doc-sources src -output doc

@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+location: http://wave-as-client.googlecode.com/svn/trunk/example/wavetictactoe/web/wavetictactoe.xml
+this is for learning purpose only.  the software is provided "as is" and assume no liability at all.
+-->
+<Module>
+<ModulePrefs title="State Example" height="400">
+    <Require feature="rpc" />
+    <Require feature="flash" />
+  </ModulePrefs>
+<Content type="html">
+<![CDATA[
+
+  <script type="text/javascript"
+      src="http://wave-api.appspot.com/public/wave.js"></script>
+  <script type="text/javascript"
+      src="http://tabletoprpg.googlecode.com/hg/lib/wave-as-client04/src/com/nextgenapp/wave/gadget/js/wave-as-client.js"></script>
+
+    <script type="text/javascript">
+
+    </script>
+
+    <object id="tabletoprpg" name="tabletoprpg"
+            type="application/x-shockwave-flash"
+            data="http://tabletoprpg.googlecode.com/hg/bin/TabletopRpg.swf"
+            width="300" height="200">
+        <param name="movie"
+            value="http://tabletoprpg.googlecode.com/hg/bin/TabletopRpg.swf"
+        />
+        <param name="quality" value="high" />
+        <param name="wmode" value="transparent" />
+        <param name="allowScriptAccess" value="always" />
+        <param name="allowNetworking" value="all" />
+    </object>
+
+<div id="content_div" style="text-align: center; height: 30px;"></div>
+
+  ]]>
+  </Content>
+</Module>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flexLibProperties version="1">
+<includeClasses>
+<classEntry path="com.nextgenapp.wave.gadget.Wave"/>
+<classEntry path="com.nextgenapp.wave.gadget.WaveCallback"/>
+<classEntry path="com.nextgenapp.wave.gadget.WaveParticipant"/>
+<classEntry path="com.nextgenapp.wave.gadget.WaveState"/>
+</includeClasses>
+<includeResources/>
+<namespaceManifests/>
+</flexLibProperties>
