@@ -9,10 +9,7 @@
 
         private function appCreationComplete(event:FlexEvent):void
         {
-            var ui:UIComponent = new UIComponent();
-            var main:Main = new Main();
-            ui.addChild(main);
-            addChild(ui);
+            var main:Main = new Main(this);
         }
 
         ]]>

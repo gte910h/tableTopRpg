@@ -8,65 +8,76 @@
     import com.nextgenapp.wave.gadget.Wave;
     import mx.controls.Alert;
     import mx.controls.Button;
+    import mx.controls.Text;
+    import mx.core.UIComponent;
+    import mx.events.FlexEvent;
 
     [SWF(width='400', height='300', backgroundColor='#cccccc', framerate='12')]
 
-    public class Main extends Sprite
+    public class Main
     {
-        private var wave:Wave;
+        public const DO_WAVE:Boolean = false;
 
-        private var txtDisplay:TextField;
+        private var wave:Wave;
+        private var mGadget:UIComponent;
+
+        private var txtDisplay:Text;
         private var btnIncrement:Button;
 
-        public function Main():void
+        public function Main(gadget:UIComponent):void
         {
-            if (stage)
-            {
-                init();
-            }
-            else
-            {
-                addEventListener(Event.ADDED_TO_STAGE, init);
-            }
-        }
+            mGadget = gadget;
 
-        private function init(e:Event = null):void
-        {
-            trace("init running!");
-            removeEventListener(Event.ADDED_TO_STAGE, init);
-
-            txtDisplay = new TextField();
-            txtDisplay.autoSize = "left";
+            txtDisplay = new Text();
             txtDisplay.text = "What the?";
-            stage.addChild(txtDisplay);
-
-            var tf:TextFormat = txtDisplay.getTextFormat();
-            tf.size = 30;
-            txtDisplay.setTextFormat(tf);
+            mGadget.addChild(txtDisplay);
 
             btnIncrement = new Button();
-            btnIncrement.addEventListener(MouseEvent.CLICK, increment);
-            stage.addChild(btnIncrement);
+            btnIncrement.label = "Increment me!";
+            btnIncrement.addEventListener(FlexEvent.CREATION_COMPLETE, buttonCreationComplete);
+            mGadget.addChild(btnIncrement);
 
 
-            if (wave == null)
+            if (DO_WAVE)
             {
-                wave = new Wave();
-                txtDisplay.text = "In wave container? " + wave.isInWaveContainer();
+                if (wave == null)
+                {
+                    wave = new Wave();
+                    txtDisplay.text = "In wave container? " + wave.isInWaveContainer();
+                }
+                wave.setStateCallback(stateCallback);
             }
-
-            wave.setStateCallback(stateCallback);
 
         }
 
-        private function increment():void
+        private function buttonCreationComplete(evt:FlexEvent):void
         {
-            txtDisplay.text = "increment pressed.";
+            btnIncrement.addEventListener(MouseEvent.CLICK, increment);
+        }
+
+        private function increment(evt:MouseEvent):void
+        {
+            var strCount:String = wave.getState().getStringValue("count");
+            var numCount:Number = 0;
+            if (strCount != null)
+            {
+                numCount = parseInt(strCount);
+            }
+
+            var delta:Object = { };
+            delta.count = numCount+1;
+            wave.submitDelta(delta);
         }
 
         private function stateCallback(state:Object):void
         {
-            txtDisplay.text = "State Callback Called!";
+            var strCount:String = wave.getState().getStringValue("count");
+            var numCount:Number = 0;
+            if (strCount != null)
+            {
+                numCount = parseInt(strCount);
+            }
+            txtDisplay.text = "Count is " + numCount;
         }
     }
 }
