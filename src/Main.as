@@ -24,12 +24,11 @@ import flash.external.ExternalInterface;
 //   This is already an implicit subclass of the container...you don't usually see them make a class here.
 //
 //
-import tilemap;
 private var wave:IComm;
 
 private var mLoader:Loader;
 
-private var the_map:tilemap;
+private var mMap:TileMap;
 
 public function Startup():void
 {
@@ -44,8 +43,9 @@ public function Startup():void
     //
     var asciimap:String = "XXXXXXXXXXXXXXXXX\nX...............X\nX...............X\nX...............X\nXXXXXXXXXXXXXXXXX";
 
-    
-    the_map = new tilemap(asciimap);
+
+    mMap = new TileMap(asciimap);
+
     if (wave == null)
     {
         if (ExternalInterface.available)
