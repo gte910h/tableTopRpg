@@ -11,14 +11,14 @@
     import mx.core.UIComponent;
     import mx.events.FlexEvent;
 
-   
+
 //
 //   This is already an implicit subclass of the container...you don't usually see them make a class here.
 //
 //
 
-	
-	
+
+
         public const DO_WAVE:Boolean = true;
 
         private var wave:Wave;
@@ -53,7 +53,7 @@
                 // something intellegent here
                 return; //prevent explosions
             }
-			
+
             var strCount:String = wave.getState().getStringValue("count");
             var numCount:Number = 0;
             if (strCount != null)
@@ -76,4 +76,4 @@
             }
             txtDisplay.text = "Count is " + numCount;
         }
-    
+
