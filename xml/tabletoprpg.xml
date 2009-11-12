@@ -14,7 +14,7 @@ this is for learning purpose only.  the software is provided "as is" and assume 
   <script type="text/javascript"
       src="http://wave-api.appspot.com/public/wave.js"></script>
   <script type="text/javascript"
-      src="http://tabletoprpg.googlecode.com/hg/lib/wave-as-client04/src/com/nextgenapp/wave/gadget/js/wave-as-client.js"></script>
+      src="http://github.com/gte910h/tableTopRpg/raw/master/lib/wave-as-client04/src/com/nextgenapp/wave/gadget/js/wave-as-client.js"></script>
 
     <script type="text/javascript">
 
@@ -22,10 +22,10 @@ this is for learning purpose only.  the software is provided "as is" and assume 
 
     <object id="tabletoprpg" name="tabletoprpg"
             type="application/x-shockwave-flash"
-            data="http://tabletoprpg.googlecode.com/hg/bin/TabletopRpg.swf"
+            data="http://github.com/gte910h/tableTopRpg/raw/master/bin/TabletopRpg.swf"
             width="300" height="200">
         <param name="movie"
-            value="http://tabletoprpg.googlecode.com/hg/bin/TabletopRpg.swf"
+            value="http://github.com/gte910h/tableTopRpg/raw/master/bin/TabletopRpg.swf"
         />
         <param name="quality" value="high" />
         <param name="wmode" value="transparent" />
