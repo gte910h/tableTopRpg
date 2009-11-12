@@ -33,16 +33,17 @@ public function Startup():void
     {
         if (ExternalInterface.available)
         {
+            trace("Constructing a WaveComm");
             wave = new WaveComm();
         }
         else
         {
+            trace("Constructing a StubComm");
             wave = new StubComm();
         }
 
     }
     wave.SetStateCallback(StateCallback);
-
 }
 
 private function Increment(evt:MouseEvent):void
