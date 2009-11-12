@@ -1,12 +1,16 @@
 ﻿
+import flash.display.BitmapData;
+import flash.display.Loader;
 import flash.events.Event;
 import flash.display.Sprite;
 import flash.events.MouseEvent;
+import flash.net.URLRequest;
 import flash.text.TextField;
 import flash.text.TextFormat;
 import com.nextgenapp.wave.gadget.Wave;
 import mx.controls.Alert;
 import mx.controls.Button;
+import mx.controls.Image;
 import mx.controls.Text;
 import mx.core.UIComponent;
 import mx.events.FlexEvent;
@@ -21,13 +25,13 @@ import flash.external.ExternalInterface;
 //
 //
 
-
 private var wave:IComm;
-private var mGadget:UIComponent;
+
+private var mLoader:Loader;
 
 public function Startup():void
 {
-    mGadget = this;
+    mLoader = new Loader();
 
     if (wave == null)
     {
@@ -61,6 +65,33 @@ private function Increment(evt:MouseEvent):void
     wave.SubmitDelta(delta);
 }
 
+private function SelectImage(evt:Event):void
+{
+    var delta:Object = new Object();
+    delta.bgImage = txtImage.text;
+    wave.SubmitDelta(delta);
+}
+
+private function LoadImageIfNecessary(strImage:String):void
+{
+    trace("LoadImageIfNecessary");
+
+    if (strImage != image1.source)
+    {
+        image1.addEventListener(Event.COMPLETE, ImageLoadComplete);
+        image1.load(strImage);
+    }
+}
+
+private function ImageLoadComplete(event:Event):void
+{
+    trace("ImageLoadComplete");
+    image1.removeEventListener(Event.COMPLETE, ImageLoadComplete);
+
+    width = image1.contentWidth;
+    height = image1.contentHeight;
+}
+
 private function StateCallback():void
 {
     var strCount:String = wave.GetState().GetStringValue("count");
@@ -69,6 +100,8 @@ private function StateCallback():void
     {
         numCount = parseInt(strCount);
     }
-    txtDisplay.text = "Count is " + numCount;
+
+    var strImage:String = wave.GetState().GetStringValue("bgImage");
+    LoadImageIfNecessary(strImage);
 }
 

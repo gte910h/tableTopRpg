@@ -1,10 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
     creationComplete="Startup();"
-    horizontalAlign="center" verticalAlign="center"  width='300' height='200' backgroundColor="#A9C0E7" >
+    layout="absolute" width='600' height='300' backgroundColor="#A9C0E7" >
 
-    <mx:Text id="txtDisplay" text="What the?" />
+    <mx:Image id="image1" x="0" y="0" />
+
+<!--    <mx:Text id="txtDisplay" text="What the?" />
     <mx:Button id="btnIncrement"  label="Increment me!" click="Increment(event)" />
+-->
+    <mx:TextInput id="txtImage" top="10" left="10" right="10" text="https://wave.googleusercontent.com/wave/attachment/Encounter2-start.png?id=7m1teXRE15&amp;key=AH0qf5zRBTf6t3pH9UJXgoFL-xXW-jG9oA" />
+    <mx:Button id="btnLoad" top="40" left="10" label="Load Image" click="SelectImage(event)" />
 
     <mx:Script source="Main.as" />
 
