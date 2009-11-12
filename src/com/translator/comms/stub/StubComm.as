@@ -18,17 +18,10 @@
         private var mStateCallback:Function;
 
         /**
-         * Whether we have dirty state and need to fire the callback
-         */
-        private var mDirty:Boolean = false;
-
-
-        /**
          * Stubbed out implementation of IComm, for when we're not actually in a Wave
          */
-        public function StubComm(emptyMovieICanPump:Sprite)
+        public function StubComm()
         {
-            emptyMovieICanPump.addEventListener(Event.ENTER_FRAME, _OnEnterFrame);
         }
 
         /**
@@ -50,7 +43,9 @@
          */
         public function SetStateCallback(callback:Function):void
         {
+            trace("StubComm::SetStateCallback");
             mStateCallback = callback;
+            mStateCallback();
         }
 
         /**
@@ -59,25 +54,16 @@
          */
         public function SubmitDelta(delta:Object):void
         {
+            trace("StubComm::SubmitDelta");
             for (var i:String in delta)
             {
+                trace("[" + i + "] => " + delta[i]);
                 mState.SetValue(i, delta[i]);
             }
-            mDirty = true;
+            mStateCallback();
         }
 
-        /**
-         * Pumped every frame
-         * @param The onEnterFrame event
-         */
-        private function _OnEnterFrame(e:Event):void
-        {
-            if (mDirty)
-            {
-                mDirty = false;
-                mStateCallback();
-            }
-        }
+
     }
 
 }

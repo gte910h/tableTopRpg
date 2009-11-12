@@ -12,7 +12,7 @@
         /**
          * Our Wave object, set in the constructor
          */
-        var mWave:Wave;
+        private var mWave:Wave;
 
         /**
          * Constructor, takes a set of domains
@@ -28,7 +28,7 @@
          */
         public function GetState():ICommState
         {
-            return new WaveCommState(this);
+            return new WaveCommState(mWave);
         }
 
         /**
