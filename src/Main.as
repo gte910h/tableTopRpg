@@ -1,16 +1,20 @@
 ﻿
-    import flash.events.Event;
-    import flash.display.Sprite;
-    import flash.events.MouseEvent;
-    import flash.text.TextField;
-    import flash.text.TextFormat;
-    import com.nextgenapp.wave.gadget.Wave;
-    import mx.controls.Alert;
-    import mx.controls.Button;
-    import mx.controls.Text;
-    import mx.core.UIComponent;
-    import mx.events.FlexEvent;
+import flash.events.Event;
+import flash.display.Sprite;
+import flash.events.MouseEvent;
+import flash.text.TextField;
+import flash.text.TextFormat;
+import com.nextgenapp.wave.gadget.Wave;
+import mx.controls.Alert;
+import mx.controls.Button;
+import mx.controls.Text;
+import mx.core.UIComponent;
+import mx.events.FlexEvent;
+import com.translator.comms.IComm;
+import com.translator.comms.stub.StubComm;
+import com.translator.comms.wave.WaveComm;
 
+import flash.external.ExternalInterface;
 
 //
 //   This is already an implicit subclass of the container...you don't usually see them make a class here.
@@ -18,62 +22,52 @@
 //
 
 
+private var wave:IComm;
+private var mGadget:UIComponent;
 
-        public const DO_WAVE:Boolean = true;
+public function Startup():void
+{
+    mGadget = this;
 
-        private var wave:Wave;
-        private var mGadget:UIComponent;
-
-//        private var txtDisplay:Text;
-  //      private var btnIncrement:Button;
-
-        public function Startup():void
+    if (wave == null)
+    {
+        if (ExternalInterface.available)
         {
-            mGadget = this;
-            if (DO_WAVE)
-            {
-                if (wave == null)
-                {
-                    wave = new Wave();
-                    txtDisplay.text = "In wave container? " + wave.isInWaveContainer();
-                }
-                wave.setStateCallback(stateCallback);
-            }
-
+            wave = new WaveComm();
+        }
+        else
+        {
+            wave = new StubComm();
         }
 
-        private function buttonCreationComplete(evt:FlexEvent):void
-        {
-            btnIncrement.addEventListener(MouseEvent.CLICK, increment);
-        }
+    }
+    wave.SetStateCallback(StateCallback);
 
-        private function increment(evt:MouseEvent):void
-        {
-            if (!wave) {
-                // something intellegent here
-                return; //prevent explosions
-            }
+}
 
-            var strCount:String = wave.getState().getStringValue("count");
-            var numCount:Number = 0;
-            if (strCount != null)
-            {
-                numCount = parseInt(strCount);
-            }
+private function Increment(evt:MouseEvent):void
+{
+    trace("Increment");
+    var strCount:String = wave.GetState().GetStringValue("count");
+    var numCount:Number = 0;
+    if (strCount != null)
+    {
+        numCount = parseInt(strCount);
+    }
 
-            var delta:Object = { };
-            delta.count = numCount+1;
-            wave.submitDelta(delta);
-        }
+    var delta:Object = { };
+    delta.count = numCount+1;
+    wave.SubmitDelta(delta);
+}
 
-        private function stateCallback(state:Object):void
-        {
-            var strCount:String = wave.getState().getStringValue("count");
-            var numCount:Number = 0;
-            if (strCount != null)
-            {
-                numCount = parseInt(strCount);
-            }
-            txtDisplay.text = "Count is " + numCount;
-        }
+private function StateCallback():void
+{
+    var strCount:String = wave.GetState().GetStringValue("count");
+    var numCount:Number = 0;
+    if (strCount != null)
+    {
+        numCount = parseInt(strCount);
+    }
+    txtDisplay.text = "Count is " + numCount;
+}
 

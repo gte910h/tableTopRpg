@@ -2,11 +2,10 @@
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
     creationComplete="Startup();"
     horizontalAlign="center" verticalAlign="center"  width='300' height='200' backgroundColor="#A9C0E7" >
-		
-	<mx:Text id="txtDisplay" text="What the?" />
-	<mx:Button	id="btnIncrement"  label="Increment me!"/>
-          
-            	
-	<mx:Script source="Main.as" />
+
+    <mx:Text id="txtDisplay" text="What the?" />
+    <mx:Button id="btnIncrement"  label="Increment me!" click="Increment(event)" />
+
+    <mx:Script source="Main.as" />
 
 </mx:Application>
