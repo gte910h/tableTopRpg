@@ -1,10 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<!--
-location: http://wave-as-client.googlecode.com/svn/trunk/example/wavetictactoe/web/wavetictactoe.xml
-this is for learning purpose only.  the software is provided "as is" and assume no liability at all.
--->
+
 <Module>
-<ModulePrefs title="State Example" height="400">
+<ModulePrefs title="State Example">
     <Require feature="rpc" />
     <Require feature="flash" />
   </ModulePrefs>
@@ -22,8 +19,7 @@ this is for learning purpose only.  the software is provided "as is" and assume 
 
     <object id="tabletoprpg" name="tabletoprpg"
             type="application/x-shockwave-flash"
-            data="http://github.com/gte910h/tableTopRpg/raw/master/bin/TabletopRpg.swf"
-            width="300" height="200">
+            data="http://github.com/gte910h/tableTopRpg/raw/master/bin/TabletopRpg.swf">
         <param name="movie"
             value="http://github.com/gte910h/tableTopRpg/raw/master/bin/TabletopRpg.swf"
         />
