@@ -28,7 +28,7 @@
         {
             mEventDispatcher = new EventDispatcher();
             mState = new StubCommState();
-            mCurrentMode = CommMode.VIEW;
+            mCurrentMode = CommMode.EDIT;
         }
 
         /**

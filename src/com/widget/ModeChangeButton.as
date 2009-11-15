@@ -28,7 +28,8 @@
             addEventListener(Event.ADDED_TO_STAGE, _AddedToStage);
             addEventListener(Event.REMOVED_FROM_STAGE, _RemovedFromStage);
 
-            width = 80;
+            width = 55;
+            height = 20;
 
             _SwitchModeTo(mComms.GetMode());
         }

@@ -25,6 +25,12 @@
         private var mWaveState:WaveCommState;
 
         /**
+         * TEMP faked "Mode" of the Wave from CommMode.  We don't currently have real mode
+         * control through wave-as-client lib, so I'm just making a slapdash version.
+         */
+        private var mTempWaveMode:String;
+
+        /**
          * Constructor, takes a set of domains
          */
         public function WaveComm(... domains)
@@ -34,7 +40,8 @@
             mWave = new Wave(domains);
             mWave.setStateCallback(_StateCallback);
 
-            // TODO figure out how to get Mode information.
+            // TODO figure out how to REAL Mode information.
+            mTempWaveMode = CommMode.EDIT;
         }
 
         /**
@@ -65,17 +72,15 @@
             _DispatchStateChange(mWaveState);
         }
 
-
-
-
-
         /**
          * Request that the mode be changed.  Asynchronous call, wait for events to determine if it happened for real
          * @param newMode New mode (from CommMode)
          */
         public function ChangeMode(newMode:String):void
         {
-            // TODO implement
+            // TODO implement correctly
+            mTempWaveMode = newMode;
+            _DispatchModeChange(mTempWaveMode);
         }
 
         /**
@@ -84,8 +89,8 @@
          */
         public function GetMode():String
         {
-            // TODO implement
-            return CommMode.EDIT;
+            // TODO implement correctly
+            return mTempWaveMode;
         }
     }
 }

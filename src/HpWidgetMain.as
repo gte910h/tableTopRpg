@@ -24,12 +24,9 @@ public function Startup():void
     mComms = CommFactory.MakeComm();
     addChild(new HpWidget(mComms));
 
-    // Local debug mode - add a ModeChangeButton
-    if (!ExternalInterface.available)
-    {
-        var modeChangeButton:ModeChangeButton = new ModeChangeButton(mComms);
-        modeChangeButton.x = 500;
-        modeChangeButton.y = 250;
-        addChild(modeChangeButton);
-    }
+    // Allow us to change modes
+    var modeChangeButton:ModeChangeButton = new ModeChangeButton(mComms);
+    modeChangeButton.x = width-modeChangeButton.width;
+    modeChangeButton.y = height - modeChangeButton.height;
+    addChild(modeChangeButton);
 }

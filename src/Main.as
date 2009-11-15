@@ -2,6 +2,7 @@
 
 import com.translator.comms.CommEventStateChange;
 import com.translator.comms.ICommState;
+import com.widget.ModeChangeButton;
 import flash.display.BitmapData;
 import flash.display.Loader;
 import flash.events.Event;
@@ -60,18 +61,11 @@ public function Startup():void
 
 
 
-    // Local debug mode - add a ModeChangeButton
-    if (!ExternalInterface.available)
-    {
-/*
-        var modeChangeButton:ModeChangeButton = new ModeChangeButton(mComms);
-        modeChangeButton.x = 500;
-        modeChangeButton.y = 250;
-        addChild(modeChangeButton);
-*/
-    }
-
-
+    // Allow us to change modes
+    var modeChangeButton:ModeChangeButton = new ModeChangeButton(mComms);
+    modeChangeButton.x = width - modeChangeButton.width;
+    modeChangeButton.y = height - modeChangeButton.height;
+    addChild(modeChangeButton);
 }
 
 private function _Increment(evt:MouseEvent):void

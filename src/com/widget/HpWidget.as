@@ -59,6 +59,8 @@
             mTempHpText.width = 30;
             mTempHpText.text = "0";
             addChild(mTempHpText);
+
+            mMaxHpText.measuredWidth
         }
     }
 }
