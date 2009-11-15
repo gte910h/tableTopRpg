@@ -30,6 +30,6 @@ public function Startup():void
     // Allow us to change modes
     var modeChangeButton:ModeChangeButton = new ModeChangeButton(mComms);
     modeChangeButton.x = width - modeChangeButton.width;
-    modeChangeButton.y = height - modeChangeButton.height;
+    modeChangeButton.y = 0;
     addChild(modeChangeButton);
 }

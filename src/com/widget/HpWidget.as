@@ -11,6 +11,7 @@
     import mx.accessibility.ButtonAccImpl;
     import mx.containers.Box;
     import mx.containers.ControlBar;
+    import mx.containers.HBox;
     import mx.containers.Panel;
     import mx.containers.VBox;
     import mx.controls.Button;
@@ -58,6 +59,11 @@
         private var mTempHpText:EditableText;
 
         /**
+         * Healing surges field
+         */
+        private var mSurgesText:EditableText;
+
+        /**
          * Text input field for Name
          */
         private var mNameInput:TextInput;
@@ -77,6 +83,7 @@
         private static const CURRENT_HP_KEY:String = "currentHp";
         private static const TEMP_HP_KEY:String = "tempHp";
         private static const MAX_HP_KEY:String = "maxHp";
+        private static const NUM_SURGES_KEY:String = "numSurges";
 
         /**
          * Constructor
@@ -116,6 +123,7 @@
             mCurrentHpText.text = state.GetNumberValue(_GetCommKey(CURRENT_HP_KEY), 25).toString();
             mMaxHpText.text = state.GetNumberValue(_GetCommKey(MAX_HP_KEY), 25).toString();
             mTempHpText.text = state.GetNumberValue(_GetCommKey(TEMP_HP_KEY), 0).toString();
+            mSurgesText.text = state.GetNumberValue(_GetCommKey(NUM_SURGES_KEY), 5).toString();
             mNameInput.text = state.GetStringValue(_GetCommKey(NAME_KEY), "John Smith");
             this.title = mNameInput.text;
         }
@@ -131,10 +139,12 @@
             var maxHp:Number = _ParseAndValidateNumber(mMaxHpText.text, 25, 1);
             var currentHp:Number = _ParseAndValidateNumber(mCurrentHpText.text, 25, -maxHp, maxHp);
             var tempHp:Number = _ParseAndValidateNumber(mTempHpText.text, 0, 0);
+            var numSurges:Number = _ParseAndValidateNumber(mSurgesText.text, 5, 0);
 
             sendObj[_GetCommKey(MAX_HP_KEY)] = maxHp;
             sendObj[_GetCommKey(CURRENT_HP_KEY)] = currentHp;
             sendObj[_GetCommKey(TEMP_HP_KEY)] = tempHp;
+            sendObj[_GetCommKey(NUM_SURGES_KEY)] = numSurges;
 
             mComms.SubmitDelta(sendObj);
         }
@@ -171,27 +181,74 @@
          */
         private function _SetupInfoArea(comms:IComm):Container
         {
+            var vLayout:Container = new VBox();
+            vLayout.percentWidth = 100;
+            vLayout.percentHeight = 70;
+
+            // Doing a bunch of shenanigans simply becuase I cannot figure out how "Center" works.
+            var currentHpWrapper:Container = new HBox();
+            currentHpWrapper.percentWidth = 100;
+
+            var spacer1:Spacer = new Spacer();
+            spacer1.percentWidth = 33;
+            currentHpWrapper.addChild(spacer1);
+
+            var currentHpContainer:Container = new VBox();
+            currentHpContainer.percentWidth = 33;
+            currentHpContainer.addChild(_CreateLabel("Current HP"));
             mCurrentHpText = new EditableText(comms);
             mCurrentHpText.scaleX = 2;
             mCurrentHpText.scaleY = 2;
             mCurrentHpText.percentWidth = 100;
-            mCurrentHpText.text = "20";
+            currentHpContainer.addChild(mCurrentHpText);
+            currentHpWrapper.addChild(currentHpContainer);
 
+            var spacer2:Spacer = new Spacer();
+            spacer2.percentWidth = 33;
+            currentHpWrapper.addChild(spacer2);
+            vLayout.addChild(currentHpWrapper);
+
+            var hLayout:Container = new HBox();
+            hLayout.percentWidth = 100;
+
+            var maxHpContainer:Container = new VBox();
+            maxHpContainer.percentWidth = 33;
+            maxHpContainer.addChild(_CreateLabel("Max HP"));
             mMaxHpText = new EditableText(comms);
             mMaxHpText.percentWidth = 100;
-            mMaxHpText.text = "20";
+            maxHpContainer.addChild(mMaxHpText);
+            hLayout.addChild(maxHpContainer);
 
+            var tempHpContainer:Container = new VBox();
+            tempHpContainer.percentWidth = 34;
+            tempHpContainer.addChild(_CreateLabel("Temp HP"));
             mTempHpText = new EditableText(comms);
             mTempHpText.percentWidth = 100;
-            mTempHpText.text = "0";
+            tempHpContainer.addChild(mTempHpText);
+            hLayout.addChild(tempHpContainer);
 
-            var vLayout:VBox = new VBox();
-            vLayout.addChild(mCurrentHpText);
-            vLayout.addChild(mMaxHpText);
-            vLayout.addChild(mTempHpText);
-            vLayout.percentWidth = 80;
-            vLayout.percentHeight = 70;
+            var surgesContainer:Container = new VBox();
+            surgesContainer.percentWidth = 33;
+            surgesContainer.addChild(_CreateLabel("Surges"));
+            mSurgesText = new EditableText(comms);
+            mSurgesText.percentWidth = 100;
+            surgesContainer.addChild(mSurgesText);
+            hLayout.addChild(surgesContainer);
+
+            vLayout.addChild(hLayout);
             return vLayout;
+        }
+
+        /**
+         * Create a label with the given text
+         * @param text Text to give the label
+         * @return The label
+         */
+        private function _CreateLabel(text:String):Label
+        {
+            var label:Label = new Label();
+            label.text = text;
+            return label;
         }
 
         /**
@@ -200,9 +257,7 @@
         private function _SetupBottomViewBar(comms:IComm):Container
         {
             var bar:ControlBar = new ControlBar();
-            var adjustLabel:Label = new Label();
-            adjustLabel.text = "Adjust:";
-            bar.addChild(adjustLabel);
+            bar.addChild(_CreateLabel("Adjust"));
 
             bar.addChild(new NumericStepper());
 
@@ -231,37 +286,13 @@
         private function _SetupBottomEditBar(comms:IComm):Container
         {
             var bar:ControlBar = new ControlBar();
-            var nameLabel:Label = new Label();
-            nameLabel.text = "Name:";
-            bar.addChild(nameLabel);
+            bar.addChild(_CreateLabel("Name"));
 
             mNameInput = new TextInput();
-            mNameInput.text = "John Smith";
             mNameInput.percentWidth = 100;
             bar.addChild(mNameInput);
 
-            var spacer:Spacer = new Spacer();
-            spacer.percentWidth = 5;
-            bar.addChild(spacer);
-
-            var submit:Button = new Button();
-            submit.label = "Update";
-            submit.addEventListener(MouseEvent.CLICK, _UpdateClicked);
-            bar.addChild(submit);
-
             return bar;
-        }
-
-        /**
-         * User pressed the "Update" button when in Edit mode
-         * @param e Event
-         */
-        private function _UpdateClicked(e:MouseEvent):void
-        {
-            _SendStateUpdate();
-
-            // When the user clicks update we can safely assume we are done with View mode.
-            mComms.ChangeMode(CommMode.VIEW);
         }
 
         /**
@@ -281,7 +312,11 @@
         {
             _SetModeTo(ev.Mode);
 
-            _ApplyState(mComms.GetState());
+            // If the new mode is View mode, we should submit the updates we have pending
+            if (CommMode.VIEW == ev.Mode)
+            {
+                _SendStateUpdate();
+            }
         }
 
         /**
