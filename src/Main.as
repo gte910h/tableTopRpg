@@ -1,4 +1,5 @@
-﻿
+﻿//   This is already an implicit subclass of the container...you don't usually see them make a class here.
+
 import flash.display.BitmapData;
 import flash.display.Loader;
 import flash.events.Event;
@@ -16,11 +17,10 @@ import mx.events.FlexEvent;
 import com.translator.comms.IComm;
 import com.translator.comms.CommFactory;
 
-//
-//   This is already an implicit subclass of the container...you don't usually see them make a class here.
-//
-//
-private var wave:IComm;
+/**
+ * Communication layer we'll be using to store state and such things
+ */
+private var mComms:IComm;
 
 private var mLoader:Loader;
 
@@ -42,17 +42,17 @@ public function Startup():void
 
     mMap = new TileMap(asciimap);
 
-    if (wave == null)
+    if (mComms == null)
     {
-        wave = CommFactory.MakeComm();
+        mComms = CommFactory.MakeComm();
     }
-    wave.SetStateCallback(StateCallback);
+    mComms.SetStateCallback(StateCallback);
 }
 
 private function Increment(evt:MouseEvent):void
 {
     trace("Increment");
-    var strCount:String = wave.GetState().GetStringValue("count");
+    var strCount:String = mComms.GetState().GetStringValue("count");
     var numCount:Number = 0;
     if (strCount != null)
     {
@@ -61,14 +61,14 @@ private function Increment(evt:MouseEvent):void
 
     var delta:Object = { };
     delta.count = numCount+1;
-    wave.SubmitDelta(delta);
+    mComms.SubmitDelta(delta);
 }
 
 private function SelectImage(evt:Event):void
 {
     var delta:Object = new Object();
     delta.bgImage = txtImage.text;
-    wave.SubmitDelta(delta);
+    mComms.SubmitDelta(delta);
 }
 
 private function LoadImageIfNecessary(strImage:String):void
@@ -93,14 +93,14 @@ private function ImageLoadComplete(event:Event):void
 
 private function StateCallback():void
 {
-    var strCount:String = wave.GetState().GetStringValue("count");
+    var strCount:String = mComms.GetState().GetStringValue("count");
     var numCount:Number = 0;
     if (strCount != null)
     {
         numCount = parseInt(strCount);
     }
 
-    var strImage:String = wave.GetState().GetStringValue("bgImage");
+    var strImage:String = mComms.GetState().GetStringValue("bgImage");
     LoadImageIfNecessary(strImage);
 }
 
