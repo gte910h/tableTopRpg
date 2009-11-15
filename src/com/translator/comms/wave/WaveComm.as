@@ -79,8 +79,11 @@
         public function ChangeMode(newMode:String):void
         {
             // TODO implement correctly
-            mTempWaveMode = newMode;
-            _DispatchModeChange(mTempWaveMode);
+            if (newMode != mTempWaveMode)
+            {
+                mTempWaveMode = newMode;
+                _DispatchModeChange(mTempWaveMode);
+            }
         }
 
         /**
