@@ -1,7 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
-    creationComplete="Startup();"
-    layout="absolute" width='600' height='300' backgroundColor="#A9C0E7" >
-
-    <mx:Script source="HpGadget.as" />
-</mx:Application>
