@@ -7,6 +7,7 @@
     import mx.containers.Canvas;
     import mx.controls.Text;
     import mx.controls.TextInput;
+    import mx.events.FlexEvent;
 
     /**
      * Class for a TextField that can be editable, or not, based on whether the IComm is currently in Edit Mode
@@ -54,30 +55,20 @@
             mDisplay = new Text();
             addChild(mDisplay);
 
-            addEventListener(Event.ADDED_TO_STAGE, _AddedToStage);
-            addEventListener(Event.REMOVED_FROM_STAGE, _RemovedFromStage);
-
-            _SwitchModeTo(mComms.GetMode());
+            addEventListener(FlexEvent.CREATION_COMPLETE, _CreationComplete);
         }
 
+
         /**
-         * This object has been added to the stage
-         * @param e The event
+         * This Flex obejct has been created properly
+         * @param e Event
          */
-        private function _AddedToStage(e:Event):void
+        private function _CreationComplete(e:Event):void
         {
+            _SwitchModeTo(mComms.GetMode());
+
             mInput.addEventListener(Event.CHANGE, _TextInputChanged);
             mComms.AddEventModeChange(_EventModeChange);
-        }
-
-        /**
-         * This object has been removed from the stage
-         * @param e The event
-         */
-        private function _RemovedFromStage(e:Event):void
-        {
-            mComms.RemoveEventModeChange(_EventModeChange);
-            mInput.removeEventListener(Event.CHANGE, _TextInputChanged);
         }
 
         /**
@@ -105,7 +96,7 @@
          */
         private function _SwitchModeTo(mode:String):void
         {
-            switch (mComms.GetMode())
+            switch (mode)
             {
                 case CommMode.EDIT:
                     mInput.visible = true;

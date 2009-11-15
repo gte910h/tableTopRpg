@@ -22,11 +22,14 @@ private var mComms:IComm;
 public function Startup():void
 {
     mComms = CommFactory.MakeComm();
-    addChild(new HpWidget(mComms));
+    var hpWidget:HpWidget = new HpWidget(mComms);
+    hpWidget.percentWidth = 100;
+    hpWidget.percentHeight = 80; // Accounting for the View/Edit button
+    addChild(hpWidget);
 
     // Allow us to change modes
     var modeChangeButton:ModeChangeButton = new ModeChangeButton(mComms);
-    modeChangeButton.x = width-modeChangeButton.width;
+    modeChangeButton.x = width - modeChangeButton.width;
     modeChangeButton.y = height - modeChangeButton.height;
     addChild(modeChangeButton);
 }
