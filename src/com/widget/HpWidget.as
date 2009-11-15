@@ -8,7 +8,6 @@
     import com.widget.Components.EditableText;
     import flash.events.Event;
     import flash.events.MouseEvent;
-    import mx.accessibility.ButtonAccImpl;
     import mx.containers.Box;
     import mx.containers.ControlBar;
     import mx.containers.HBox;
@@ -16,6 +15,7 @@
     import mx.containers.VBox;
     import mx.controls.Button;
     import mx.controls.Label;
+    import mx.controls.LinkButton;
     import mx.controls.NumericStepper;
     import mx.controls.Spacer;
     import mx.controls.TextInput;
@@ -77,6 +77,19 @@
          * Control bar across the bottom when in Edit mode
          */
         private var mBottomBarEditMode:Container;
+
+        /**
+         * A simple box for the user to input a number
+         */
+        private var mAdjustValue:NumericStepper;
+
+        // Embedded icons for our Buttons
+        [Embed(source="../../../img/plus.png")]
+        private var mHealIcon:Class;
+        [Embed(source="../../../img/minus.png")]
+        private var mDamageIcon:Class;
+        [Embed(source="../../../img/temporary.png")]
+        private var mTempHpIcon:Class;
 
         // All the various keys we are going to use for our communication state
         private static const NAME_KEY:String = "name";
@@ -190,11 +203,11 @@
             currentHpWrapper.percentWidth = 100;
 
             var spacer1:Spacer = new Spacer();
-            spacer1.percentWidth = 33;
+            spacer1.percentWidth = 20;
             currentHpWrapper.addChild(spacer1);
 
             var currentHpContainer:Container = new VBox();
-            currentHpContainer.percentWidth = 33;
+            currentHpContainer.percentWidth = 60;
             currentHpContainer.addChild(_CreateLabel("Current HP"));
             mCurrentHpText = new EditableText(comms);
             mCurrentHpText.scaleX = 2;
@@ -204,7 +217,7 @@
             currentHpWrapper.addChild(currentHpContainer);
 
             var spacer2:Spacer = new Spacer();
-            spacer2.percentWidth = 33;
+            spacer2.percentWidth = 20;
             currentHpWrapper.addChild(spacer2);
             vLayout.addChild(currentHpWrapper);
 
@@ -259,23 +272,37 @@
             var bar:ControlBar = new ControlBar();
             bar.addChild(_CreateLabel("Adjust"));
 
-            bar.addChild(new NumericStepper());
+            mAdjustValue = new NumericStepper();
+            mAdjustValue.maximum = 999;
+            bar.addChild(mAdjustValue);
 
             var spacer:Spacer = new Spacer();
             spacer.percentWidth = 100;
             bar.addChild(spacer);
 
-            var healButton:Button = new Button();
-            healButton.label = "+";
+            var healButton:LinkButton = new LinkButton();
+            healButton.setStyle("icon", mHealIcon);
+            healButton.width = 20;
+            healButton.addEventListener(MouseEvent.CLICK, _HealClicked);
             bar.addChild(healButton);
 
-            var damageButton:Button = new Button();
-            damageButton.label = "-";
+            var damageButton:LinkButton = new LinkButton();
+            damageButton.setStyle("icon", mDamageIcon);
+            damageButton.width = 20;
+            damageButton.addEventListener(MouseEvent.CLICK, _DamageClicked);
             bar.addChild(damageButton);
 
-            var tempHpButton:Button = new Button();
-            tempHpButton.label = "T";
+            var tempHpButton:LinkButton = new LinkButton();
+            tempHpButton.setStyle("icon", mTempHpIcon);
+            tempHpButton.width = 20;
+            tempHpButton.addEventListener(MouseEvent.CLICK, _TempHpClicked);
             bar.addChild(tempHpButton);
+
+            var surgeButton:Button = new Button();
+            surgeButton.width = 58;
+            surgeButton.label = "Surge";
+            surgeButton.addEventListener(MouseEvent.CLICK, _SurgeClicked);
+            bar.addChild(surgeButton);
 
             return bar;
         }
@@ -294,6 +321,121 @@
 
             return bar;
         }
+
+        /**
+         * The user wants to heal
+         * @param me Event
+         */
+        private function _HealClicked(me:MouseEvent):void
+        {
+            _AttemptHeal(false);
+        }
+
+        /**
+         * The user wants to take damage.  Well I guess he probably doesn't actually want to take damage, but that's what he's doing.
+         * @param me Event
+         */
+        private function _DamageClicked(me:MouseEvent):void
+        {
+            var amount:Number = mAdjustValue.value;
+            if (0 < amount)
+            {
+                // Damage for that amount.  Take off Temp Hp first
+                var tempHp:Number = parseInt(mTempHpText.text);
+                var currentHp:Number = parseInt(mCurrentHpText.text);
+
+                var amountTakenFromTemp:Number = Math.min(amount, tempHp);
+                tempHp -= amountTakenFromTemp;
+                amount -= amountTakenFromTemp;
+                currentHp -= amount;
+
+                // Also cap at -maxHp just because
+                var maxHp:Number = parseInt(mMaxHpText.text);
+                currentHp = Math.max(currentHp, -maxHp);
+
+                // Send that info over Comms
+                var sendObj:Object = new Object();
+                sendObj[_GetCommKey(CURRENT_HP_KEY)] = currentHp;
+                sendObj[_GetCommKey(TEMP_HP_KEY)] = tempHp;
+                mComms.SubmitDelta(sendObj);
+            }
+            mAdjustValue.value = 0;
+        }
+
+        /**
+         * The user wants to gain temporary Hp.
+         * @param me Event
+         */
+        private function _TempHpClicked(me:MouseEvent):void
+        {
+            var amount:Number = mAdjustValue.value;
+            if (0 < amount)
+            {
+                // Temp HP does not stack.  It just becomes the higher of what it was before and the new value
+                var tempHp:Number = parseInt(mTempHpText.text);
+                if (amount > tempHp)
+                {
+                    // Send a change over comms
+                    var sendObj:Object = new Object();
+                    sendObj[_GetCommKey(TEMP_HP_KEY)] = amount;
+                    mComms.SubmitDelta(sendObj);
+                }
+            }
+            mAdjustValue.value = 0;
+        }
+
+        /**
+         * The user wants to spend a surge
+         * @param me Event
+         */
+        private function _SurgeClicked(me:MouseEvent):void
+        {
+            // Can only surge if we have a surge left
+            if (0 < parseInt(mSurgesText.text))
+            {
+                _AttemptHeal(true);
+            }
+        }
+
+        /**
+         * Attempt to healing event.  Will look at the current amount on mAdjustValue
+         * @param surgeUsed Whether a surge was used
+         */
+        private function _AttemptHeal(surgeUsed:Boolean=false):void
+        {
+            var amount:Number = mAdjustValue.value;
+            if (0 < amount)
+            {
+                // Heal for that amount.  Cannot go over max HP.
+                // CurrentHp must start at 0 (if we're getting healed, it automatically becomes zero before the healing applies).
+                var maxHp:Number = parseInt(mMaxHpText.text);
+                var currentHp:Number = parseInt(mCurrentHpText.text);
+                if (0 > currentHp)
+                {
+                    currentHp = 0;
+                }
+                currentHp += amount;
+                if (currentHp > maxHp)
+                {
+                    currentHp = maxHp;
+                }
+
+                // If we used a surge, decrease by 1
+                var surgesLeft:Number = parseInt(mSurgesText.text);
+                if (surgeUsed)
+                {
+                    surgesLeft -= 1;
+                }
+
+                // Send that info over Comms
+                var sendObj:Object = new Object();
+                sendObj[_GetCommKey(CURRENT_HP_KEY)] = currentHp;
+                sendObj[_GetCommKey(NUM_SURGES_KEY)] = surgesLeft;
+                mComms.SubmitDelta(sendObj);
+            }
+            mAdjustValue.value = 0;
+        }
+
 
         /**
          * This Flex obejct has been updated
