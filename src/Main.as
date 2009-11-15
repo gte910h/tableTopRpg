@@ -1,5 +1,7 @@
 ﻿//   This is already an implicit subclass of the container...you don't usually see them make a class here.
 
+import com.translator.comms.CommEventStateChange;
+import com.translator.comms.ICommState;
 import flash.display.BitmapData;
 import flash.display.Loader;
 import flash.events.Event;
@@ -16,6 +18,8 @@ import mx.core.UIComponent;
 import mx.events.FlexEvent;
 import com.translator.comms.IComm;
 import com.translator.comms.CommFactory;
+import flash.external.ExternalInterface;
+import com.widget.ModeChangeButton;
 
 /**
  * Communication layer we'll be using to store state and such things
@@ -46,10 +50,21 @@ public function Startup():void
     {
         mComms = CommFactory.MakeComm();
     }
-    mComms.SetStateCallback(StateCallback);
+    mComms.AddEventStateChange(_StateCallback);
+
+
+
+    // Local debug mode - add a ModeChangeButton
+    if (!ExternalInterface.available)
+    {
+        var modeChangeButton:ModeChangeButton = new ModeChangeButton(mComms);
+        modeChangeButton.x = 500;
+        modeChangeButton.y = 250;
+        addChild(modeChangeButton);
+    }
 }
 
-private function Increment(evt:MouseEvent):void
+private function _Increment(evt:MouseEvent):void
 {
     trace("Increment");
     var strCount:String = mComms.GetState().GetStringValue("count");
@@ -64,43 +79,48 @@ private function Increment(evt:MouseEvent):void
     mComms.SubmitDelta(delta);
 }
 
-private function SelectImage(evt:Event):void
+private function _SelectImage(evt:Event):void
 {
     var delta:Object = new Object();
     delta.bgImage = txtImage.text;
     mComms.SubmitDelta(delta);
 }
 
-private function LoadImageIfNecessary(strImage:String):void
+private function _LoadImageIfNecessary(strImage:String):void
 {
-    trace("LoadImageIfNecessary");
+    trace("_LoadImageIfNecessary");
 
     if (strImage != image1.source)
     {
-        image1.addEventListener(Event.COMPLETE, ImageLoadComplete);
+        image1.addEventListener(Event.COMPLETE, _ImageLoadComplete);
         image1.load(strImage);
     }
 }
 
-private function ImageLoadComplete(event:Event):void
+private function _ImageLoadComplete(event:Event):void
 {
-    trace("ImageLoadComplete");
-    image1.removeEventListener(Event.COMPLETE, ImageLoadComplete);
+    trace("_ImageLoadComplete");
+    image1.removeEventListener(Event.COMPLETE, _ImageLoadComplete);
 
     width = image1.contentWidth;
     height = image1.contentHeight;
 }
 
-private function StateCallback():void
+private function _StateCallback(stateEvent:CommEventStateChange):void
 {
-    var strCount:String = mComms.GetState().GetStringValue("count");
+    _StateChanged(stateEvent.State);
+}
+
+private function _StateChanged(newState:ICommState):void
+{
+    var strCount:String = newState.GetStringValue("count");
     var numCount:Number = 0;
     if (strCount != null)
     {
         numCount = parseInt(strCount);
     }
 
-    var strImage:String = mComms.GetState().GetStringValue("bgImage");
-    LoadImageIfNecessary(strImage);
+    var strImage:String = newState.GetStringValue("bgImage");
+    _LoadImageIfNecessary(strImage);
 }
 

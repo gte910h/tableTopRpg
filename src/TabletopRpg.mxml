@@ -9,7 +9,7 @@
     <mx:Button id="btnIncrement"  label="Increment me!" click="Increment(event)" />
 -->
     <mx:TextInput id="txtImage" top="10" left="10" right="10" text="https://wave.googleusercontent.com/wave/attachment/Encounter2-start.png?id=7m1teXRE15&amp;key=AH0qf5zRBTf6t3pH9UJXgoFL-xXW-jG9oA" />
-    <mx:Button id="btnLoad" top="40" left="10" label="Load Image" click="SelectImage(event)" />
+    <mx:Button id="btnLoad" top="40" left="10" label="Load Image" click="_SelectImage(event)" />
 
     <mx:Script source="Main.as" />
 

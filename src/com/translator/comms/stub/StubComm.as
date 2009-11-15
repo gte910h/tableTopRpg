@@ -1,27 +1,34 @@
 ﻿package com.translator.comms.stub
 {
+    import com.translator.comms.BaseComm;
+    import com.translator.comms.CommEventStateChange;
+    import com.translator.comms.CommMode;
     import com.translator.comms.IComm;
     import com.translator.comms.ICommState;
     import flash.display.Sprite;
     import flash.events.Event;
+    import flash.events.EventDispatcher;
 
-    public class StubComm implements IComm
+    public class StubComm extends BaseComm implements IComm
     {
         /**
          * The State object for this StubComm
          */
-        private var mState:StubCommState = new StubCommState();
+        private var mState:StubCommState;
 
         /**
-         * Function called when state changes
+         * Current mode of the Comm
          */
-        private var mStateCallback:Function;
+        private var mCurrentMode:String;
 
         /**
          * Stubbed out implementation of IComm, for when we're not actually in a Wave
          */
         public function StubComm()
         {
+            mEventDispatcher = new EventDispatcher();
+            mState = new StubCommState();
+            mCurrentMode = CommMode.VIEW;
         }
 
         /**
@@ -34,18 +41,12 @@
         }
 
         /**
-         * Sets the gadget state update callback.
-         * If the state is already received from the container,
-         * the callback is invoked immediately to report the current gadget state.
-         * Only one callback can be defined.
-         * Consecutive calls would remove the old callback and set the new one.
-         * @param callback
+         * Returns the current mode
+         * @return Current mode, from CommMode
          */
-        public function SetStateCallback(callback:Function):void
+        public function GetMode():String
         {
-            trace("StubComm::SetStateCallback");
-            mStateCallback = callback;
-            mStateCallback();
+            return mCurrentMode;
         }
 
         /**
@@ -60,10 +61,20 @@
                 trace("[" + i + "] => " + delta[i]);
                 mState.SetValue(i, delta[i]);
             }
-            mStateCallback();
+            _DispatchStateChange(mState);
         }
 
-
+        /**
+         * Request that the mode be changed.  Asynchronous call, wait for events to determine if it happened for real
+         * @param newMode New mode (from CommMode)
+         */
+        public function ChangeMode(newMode:String):void
+        {
+            if (newMode != mCurrentMode)
+            {
+                mCurrentMode = newMode;
+                _DispatchModeChange(mCurrentMode);
+            }
+        }
     }
-
 }

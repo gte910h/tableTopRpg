@@ -13,20 +13,46 @@
         function GetState():ICommState;
 
         /**
-         * Sets the gadget state update callback.
-         * If the state is already received from the container,
-         * the callback is invoked immediately to report the current gadget state.
-         * Only one callback can be defined.
-         * Consecutive calls would remove the old callback and set the new one.
-         * @param callback
+         * Returns the current mode
+         * @return Current mode, from CommMode
          */
-        function SetStateCallback(callback:Function):void;
+        function GetMode():String;
+
+        /**
+         * Adds a callback for when the state is changed.
+         * @param callback Will be passed an object of type CommEventStateChange
+         */
+        function AddEventStateChange(callback:Function):void;
+
+        /**
+         * Removes a callback for when the state is changed.
+         * @param callback Callback to remove
+         */
+        function RemoveEventStateChange(callback:Function):void;
+
+        /**
+         * Adds a callback for when the Mode is changed
+         * @param callback Will be passed an object of type CommEventModeChange
+         */
+        function AddEventModeChange(callback:Function):void;
+
+        /**
+         * Removes a callback for when the Mode is changed.
+         * @param callback Callback to remove
+         */
+        function RemoveEventModeChange(callback:Function):void;
 
         /**
          * Updates the state delta. This is an asynchronous call that will update the state and not take effect immediately. Creating any key with a null value will attempt to delete the key.
          * @param delta Map of key-value pairs representing a delta of keys to update.
          */
         function SubmitDelta(delta:Object):void;
+
+        /**
+         * Request that the mode be changed.  Asynchronous call, wait for events to determine if it happened for real
+         * @param newMode New mode (from CommMode)
+         */
+        function ChangeMode(newMode:String):void;
     }
 
 }

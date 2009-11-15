@@ -1,13 +1,18 @@
 ﻿package com.translator.comms.wave
 {
     import com.nextgenapp.wave.gadget.Wave;
+    import com.nextgenapp.wave.gadget.WaveState;
+    import com.translator.comms.BaseComm;
+    import com.translator.comms.CommEventStateChange;
+    import com.translator.comms.CommMode;
     import com.translator.comms.IComm;
     import com.translator.comms.ICommState;
+    import flash.events.EventDispatcher;
 
     /**
      * Implementation of the IComm interface to actually interact with Google Wave
      */
-    public class WaveComm implements IComm
+    public class WaveComm extends BaseComm implements IComm
     {
         /**
          * Our Wave object, set in the constructor
@@ -15,11 +20,21 @@
         private var mWave:Wave;
 
         /**
+         * Latest state object we heard about
+         */
+        private var mWaveState:WaveCommState;
+
+        /**
          * Constructor, takes a set of domains
          */
         public function WaveComm(... domains)
         {
+            mEventDispatcher = new EventDispatcher();
+
             mWave = new Wave(domains);
+            mWave.setStateCallback(_StateCallback);
+
+            // TODO figure out how to get Mode information.
         }
 
         /**
@@ -28,20 +43,7 @@
          */
         public function GetState():ICommState
         {
-            return new WaveCommState(mWave);
-        }
-
-        /**
-         * Sets the gadget state update callback.
-         * If the state is already received from the container,
-         * the callback is invoked immediately to report the current gadget state.
-         * Only one callback can be defined.
-         * Consecutive calls would remove the old callback and set the new one.
-         * @param callback
-         */
-        public function SetStateCallback(callback:Function):void
-        {
-            mWave.setStateCallback(callback);
+            return mWaveState;
         }
 
         /**
@@ -51,6 +53,39 @@
         public function SubmitDelta(delta:Object):void
         {
             mWave.submitDelta(delta);
+        }
+
+        /**
+         * The state has changed
+         * @param state New state
+         */
+        private function _StateCallback(state:WaveState):void
+        {
+            mWaveState = new WaveCommState(state);
+            _DispatchStateChange(mWaveState);
+        }
+
+
+
+
+
+        /**
+         * Request that the mode be changed.  Asynchronous call, wait for events to determine if it happened for real
+         * @param newMode New mode (from CommMode)
+         */
+        public function ChangeMode(newMode:String):void
+        {
+            // TODO implement
+        }
+
+        /**
+         * Returns the current mode
+         * @return Current mode, from CommMode
+         */
+        public function GetMode():String
+        {
+            // TODO implement
+            return CommMode.EDIT;
         }
     }
 }

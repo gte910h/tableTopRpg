@@ -1,6 +1,5 @@
 ﻿package com.translator.comms.wave
 {
-    import com.nextgenapp.wave.gadget.Wave;
     import com.translator.comms.ICommState;
     import com.nextgenapp.wave.gadget.WaveState;
 
@@ -14,9 +13,9 @@
          */
         private var mState:WaveState;
 
-        public function WaveCommState(wave:Wave)
+        public function WaveCommState(state:WaveState)
         {
-            mState = wave.getState();
+            mState = state;
         }
 
 
