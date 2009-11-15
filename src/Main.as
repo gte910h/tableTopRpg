@@ -7,7 +7,6 @@ import flash.events.MouseEvent;
 import flash.net.URLRequest;
 import flash.text.TextField;
 import flash.text.TextFormat;
-import com.nextgenapp.wave.gadget.Wave;
 import mx.controls.Alert;
 import mx.controls.Button;
 import mx.controls.Image;
@@ -15,10 +14,7 @@ import mx.controls.Text;
 import mx.core.UIComponent;
 import mx.events.FlexEvent;
 import com.translator.comms.IComm;
-import com.translator.comms.stub.StubComm;
-import com.translator.comms.wave.WaveComm;
-
-import flash.external.ExternalInterface;
+import com.translator.comms.CommFactory;
 
 //
 //   This is already an implicit subclass of the container...you don't usually see them make a class here.
@@ -48,17 +44,7 @@ public function Startup():void
 
     if (wave == null)
     {
-        if (ExternalInterface.available)
-        {
-            trace("Constructing a WaveComm");
-            wave = new WaveComm();
-        }
-        else
-        {
-            trace("Constructing a StubComm");
-            wave = new StubComm();
-        }
-
+        wave = CommFactory.MakeComm();
     }
     wave.SetStateCallback(StateCallback);
 }
