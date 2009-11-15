@@ -4,6 +4,7 @@
     import com.translator.comms.CommMode;
     import com.translator.comms.IComm;
     import flash.events.Event;
+    import mx.containers.Box;
     import mx.containers.Canvas;
     import mx.controls.Text;
     import mx.controls.TextInput;
@@ -12,7 +13,7 @@
     /**
      * Class for a TextField that can be editable, or not, based on whether the IComm is currently in Edit Mode
      */
-    public class EditableText extends Canvas
+    public class EditableText extends Box
     {
         /**
          * Communication layer
@@ -50,25 +51,30 @@
         {
             mComms = comms;
 
-            mInput = new TextInput();
-            addChild(mInput);
             mDisplay = new Text();
+            mDisplay.includeInLayout = false;
+            mDisplay.percentWidth = 100;
+            mDisplay.percentHeight = 100;
             addChild(mDisplay);
+            mInput = new TextInput();
+            mInput.percentWidth = 100;
+            mInput.percentHeight = 100;
+            addChild(mInput);
 
-            addEventListener(FlexEvent.CREATION_COMPLETE, _CreationComplete);
+            mInput.addEventListener(Event.CHANGE, _TextInputChanged);
+            mComms.AddEventModeChange(_EventModeChange);
+
+            addEventListener(FlexEvent.UPDATE_COMPLETE, _UpdateComplete);
         }
 
 
         /**
-         * This Flex obejct has been created properly
+         * This Flex obejct has been updated properly
          * @param e Event
          */
-        private function _CreationComplete(e:Event):void
+        private function _UpdateComplete(e:Event):void
         {
-            _SwitchModeTo(mComms.GetMode());
-
-            mInput.addEventListener(Event.CHANGE, _TextInputChanged);
-            mComms.AddEventModeChange(_EventModeChange);
+            _SetModeTo(mComms.GetMode());
         }
 
         /**
@@ -87,14 +93,14 @@
          */
         private function _EventModeChange(ev:CommEventModeChange):void
         {
-            _SwitchModeTo(ev.Mode);
+            _SetModeTo(ev.Mode);
         }
 
         /**
-         * Switch to the given comm mode
-         * @param mode New mode to switch to
+         * Set to the given comm mode
+         * @param mode New mode to set to
          */
-        private function _SwitchModeTo(mode:String):void
+        private function _SetModeTo(mode:String):void
         {
             switch (mode)
             {

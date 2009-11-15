@@ -13,16 +13,27 @@
         private var mStateMap:Object = new Object();
 
         /**
-         * correspond to wave.State.get(key, opt_default)
-         * Retrieve a value from the synchronized state.
+         * Retrieve a String value from the synchronized state.
          *
-         * @param key  specified key to retrieve.
+         * @param key specified key to retrieve.
          * @param defaultVal Optional default value if nonexistent (optional).
-         * @return Object for the specified key or null if not found.
+         * @return String for the specified key or null if not found.
          */
         public function GetStringValue(key:String, defaultVal:String = null):String
         {
-            return mStateMap[key];
+            return mStateMap[key] ? mStateMap[key] : defaultVal;
+        }
+
+        /**
+         * Retrieve a Number value from the synchronized state.
+         *
+         * @param key specified key to retrieve.
+         * @param defaultVal Optional default value if nonexistent (optional).
+         * @return Number for the specified key or -1 if not found.
+         */
+        public function GetNumberValue(key:String, defaultVal:Number = -1):Number
+        {
+            return mStateMap[key] ? mStateMap[key] : defaultVal;
         }
 
         /**

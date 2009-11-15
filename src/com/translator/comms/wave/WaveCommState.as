@@ -13,6 +13,9 @@
          */
         private var mState:WaveState;
 
+        /**
+         * Constructor
+         */
         public function WaveCommState(state:WaveState)
         {
             mState = state;
@@ -20,16 +23,27 @@
 
 
         /**
-         * correspond to wave.State.get(key, opt_default)
-         * Retrieve a value from the synchronized state.
+         * Retrieve a String value from the synchronized state.
          *
          * @param key specified key to retrieve.
-         * @param opt_default Optional default value if nonexistent (optional).
-         * @return Object for the specified key or null if not found.
+         * @param defaultVal Optional default value if nonexistent (optional).
+         * @return String for the specified key or null if not found.
          */
-        public function GetStringValue(key:String, opt_default:String = null):String
+        public function GetStringValue(key:String, defaultVal:String = null):String
         {
-            return mState.getStringValue(key, opt_default);
+            return mState.getStringValue(key, defaultVal);
+        }
+
+        /**
+         * Retrieve a Number value from the synchronized state.
+         *
+         * @param key specified key to retrieve.
+         * @param defaultVal Optional default value if nonexistent (optional).
+         * @return Number for the specified key or -1 if not found.
+         */
+        public function GetNumberValue(key:String, defaultVal:Number = -1):Number
+        {
+            return parseInt(GetStringValue(key, defaultVal.toString()));
         }
 
         /**
