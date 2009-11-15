@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+
+<Module>
+<ModulePrefs title="HP Gadget">
+    <Require feature="rpc" />
+    <Require feature="flash" />
+  </ModulePrefs>
+<Content type="html">
+<![CDATA[
+
+  <script type="text/javascript"
+      src="http://wave-api.appspot.com/public/wave.js"></script>
+  <script type="text/javascript"
+      src="http://github.com/gte910h/tableTopRpg/raw/master/lib/wave-as-client04/src/com/nextgenapp/wave/gadget/js/wave-as-client.js"></script>
+
+    <script type="text/javascript">
+
+    </script>
+
+    <object id="tabletoprpg" name="tabletoprpg"
+            type="application/x-shockwave-flash"
+            data="http://github.com/gte910h/tableTopRpg/raw/master/bin/HpGadget.swf">
+        <param name="movie"
+            value="http://github.com/gte910h/tableTopRpg/raw/master/bin/HpGadget.swf"
+        />
+        <param name="quality" value="high" />
+        <param name="wmode" value="transparent" />
+        <param name="allowScriptAccess" value="always" />
+        <param name="allowNetworking" value="all" />
+    </object>
+
+<div id="content_div" style="text-align: center; height: 30px;"></div>
+
+  ]]>
+  </Content>
+</Module>
