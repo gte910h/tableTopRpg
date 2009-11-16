@@ -65,7 +65,6 @@
 
         /**
          * The state has changed
-         * @param state New state
          */
         private function _StateCallback():void
         {
