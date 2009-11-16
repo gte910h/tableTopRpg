@@ -37,11 +37,12 @@
         {
             mEventDispatcher = new EventDispatcher();
 
-            mWave = new Wave(domains);
-            mWave.setStateCallback(_StateCallback);
-
             // TODO figure out how to REAL Mode information.
             mTempWaveMode = CommMode.EDIT;
+            mWaveState = new WaveCommState();
+
+            mWave = new Wave(domains);
+            mWave.setStateCallback(_StateCallback);
         }
 
         /**

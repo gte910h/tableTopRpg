@@ -16,7 +16,7 @@
         /**
          * Constructor
          */
-        public function WaveCommState(state:WaveState)
+        public function WaveCommState(state:WaveState=null)
         {
             mState = state;
         }
@@ -31,7 +31,11 @@
          */
         public function GetStringValue(key:String, defaultVal:String = null):String
         {
-            return mState.getStringValue(key, defaultVal);
+            if (null != mState)
+            {
+                return mState.getStringValue(key, defaultVal);
+            }
+            return defaultVal;
         }
 
         /**
@@ -52,7 +56,11 @@
          */
         public function GetKeys():Array
         {
-            return mState.getKeys();
+            if (null != mState)
+            {
+                return mState.getKeys();
+            }
+            return [];
         }
     }
 }

@@ -22,8 +22,7 @@ private var mComms:IComm;
  */
 public function Startup():void
 {
-    //mComms = CommFactory.MakeComm();
-    mComms = new StubComm(); // Temp while I figured out what's wrong with the live version
+    mComms = CommFactory.MakeComm();
     var hpWidget:HpWidget = new HpWidget(mComms);
     hpWidget.percentWidth = 100;
     hpWidget.percentHeight = 80; // Accounting for the View/Edit button
