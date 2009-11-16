@@ -68,7 +68,6 @@
         private function _StateCallback(ws:WaveState):void
         {
             mWaveState = new WaveCommState(ws);
-            _DispatchStateChange(mWaveState);
 
             // WaveComm ITSELF is also storing mode info about the mode it's in.
             var waveMode:String = mWaveState.GetStringValue(WAVE_MODE_KEY, CommMode.VIEW);
@@ -77,6 +76,8 @@
                 mTempWaveMode = waveMode;
                 _DispatchModeChange(mTempWaveMode);
             }
+
+            _DispatchStateChange(mWaveState);
         }
 
         /**
