@@ -24,7 +24,7 @@ public function Startup():void
     mComms = CommFactory.MakeComm();
     var hpWidget:HpWidget = new HpWidget(mComms);
     hpWidget.percentWidth = 100;
-    hpWidget.percentHeight = 80; // Accounting for the View/Edit button
+    hpWidget.percentHeight = 100;
     addChild(hpWidget);
 
     // Allow us to change modes
