@@ -3,7 +3,6 @@
 import com.translator.comms.CommEventStateChange;
 import com.translator.comms.IComm;
 import com.translator.comms.CommFactory;
-import com.translator.comms.stub.StubComm;
 import com.widget.HpWidget;
 import com.widget.ModeChangeButton;
 import flash.text.TextField;
