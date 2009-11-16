@@ -67,9 +67,9 @@
          * The state has changed
          * @param state New state
          */
-        private function _StateCallback(state:WaveState):void
+        private function _StateCallback():void
         {
-            mWaveState = new WaveCommState(state);
+            mWaveState = new WaveCommState(mWave.getState());
             _DispatchStateChange(mWaveState);
         }
 
