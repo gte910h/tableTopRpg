@@ -29,6 +29,7 @@
          * control through wave-as-client lib, so I'm just making a slapdash version.
          */
         private var mTempWaveMode:String;
+        private static const WAVE_MODE_KEY:String = "TempWaveMode";
 
         /**
          * Constructor, takes a set of domains
@@ -37,8 +38,6 @@
         {
             super();
 
-            // TODO figure out how to REAL Mode information.
-            mTempWaveMode = CommMode.EDIT;
             mWaveState = new WaveCommState();
 
             mWave = new Wave();
@@ -70,6 +69,14 @@
         {
             mWaveState = new WaveCommState(ws);
             _DispatchStateChange(mWaveState);
+
+            // WaveComm ITSELF is also storing mode info about the mode it's in.
+            var waveMode:String = mWaveState.GetStringValue(WAVE_MODE_KEY, CommMode.VIEW);
+            if (mTempWaveMode != waveMode)
+            {
+                mTempWaveMode = waveMode;
+                _DispatchModeChange(mTempWaveMode);
+            }
         }
 
         /**
@@ -81,8 +88,9 @@
             // TODO implement correctly
             if (newMode != mTempWaveMode)
             {
-                mTempWaveMode = newMode;
-                _DispatchModeChange(mTempWaveMode);
+                var modeChange:Object = new Object();
+                modeChange[WAVE_MODE_KEY] = newMode;
+                SubmitDelta(modeChange);
             }
         }
 

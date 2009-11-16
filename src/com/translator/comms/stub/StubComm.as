@@ -28,7 +28,7 @@
         {
             super();
             mState = new StubCommState();
-            mCurrentMode = CommMode.EDIT;
+            mCurrentMode = CommMode.VIEW;
         }
 
         /**
