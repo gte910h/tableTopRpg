@@ -105,8 +105,7 @@
         public function HpWidget(comms:IComm)
         {
             mComms = comms;
-            //mCommPrefix = "hp" + sInstances;
-            mCommPrefix = ""; // Just trying it out to see if I can get Wave state working properly
+            mCommPrefix = "hp" + sInstances;
             sInstances++;
 
             var topLayout:Container = _SetupInfoArea(comms);
