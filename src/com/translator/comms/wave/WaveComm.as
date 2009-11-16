@@ -28,7 +28,7 @@
          * TEMP faked "Mode" of the Wave from CommMode.  We don't currently have real mode
          * control through wave-as-client lib, so I'm just making a slapdash version.
          */
-        private var mTempWaveMode:String;
+        private var mTempWaveMode:String = null;
         private static const WAVE_MODE_KEY:String = "TempWaveMode";
 
         /**
@@ -69,15 +69,18 @@
         {
             mWaveState = new WaveCommState(ws);
 
-            // WaveComm ITSELF is also storing mode info about the mode it's in.
-            var waveMode:String = mWaveState.GetStringValue(WAVE_MODE_KEY, CommMode.VIEW);
-            if (mTempWaveMode != waveMode)
-            {
-                mTempWaveMode = waveMode;
-                _DispatchModeChange(mTempWaveMode);
-            }
-
             _DispatchStateChange(mWaveState);
+
+            // WaveComm ITSELF is also storing mode info about the mode it's in.
+            // Not dispatching an event here because it messes with the StateChange event stuff
+            if (null == mTempWaveMode)
+            {
+                var waveMode:String = mWaveState.GetStringValue(WAVE_MODE_KEY, CommMode.VIEW);
+                if (null != waveMode)
+                {
+                    mTempWaveMode = waveMode;
+                }
+            }
         }
 
         /**
@@ -89,6 +92,10 @@
             // TODO implement correctly
             if (newMode != mTempWaveMode)
             {
+                mTempWaveMode = newMode;
+                _DispatchModeChange(mTempWaveMode);
+
+                // Save that off for next time
                 var modeChange:Object = new Object();
                 modeChange[WAVE_MODE_KEY] = newMode;
                 SubmitDelta(modeChange);
