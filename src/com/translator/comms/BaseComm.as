@@ -9,7 +9,7 @@
         /**
          * Making use of AS3's Event system
          */
-        protected var mEventDispatcher:EventDispatcher;
+        private var mEventDispatcher:EventDispatcher;
 
         /**
          * Constructor

@@ -33,15 +33,15 @@
         /**
          * Constructor, takes a set of domains
          */
-        public function WaveComm(... domains)
+        public function WaveComm()
         {
-            mEventDispatcher = new EventDispatcher();
+            super();
 
             // TODO figure out how to REAL Mode information.
             mTempWaveMode = CommMode.EDIT;
             mWaveState = new WaveCommState();
 
-            mWave = new Wave(domains);
+            mWave = new Wave();
             mWave.setStateCallback(_StateCallback);
         }
 
@@ -56,7 +56,7 @@
 
         /**
          * Updates the state delta. This is an asynchronous call that will update the state and not take effect immediately. Creating any key with a null value will attempt to delete the key.
-         * @param delta	 Map of key-value pairs representing a delta of keys to update.
+         * @param delta Map of key-value pairs representing a delta of keys to update.
          */
         public function SubmitDelta(delta:Object):void
         {
@@ -66,9 +66,9 @@
         /**
          * The state has changed
          */
-        private function _StateCallback():void
+        private function _StateCallback(ws:WaveState):void
         {
-            mWaveState = new WaveCommState(mWave.getState());
+            mWaveState = new WaveCommState(ws);
             _DispatchStateChange(mWaveState);
         }
 

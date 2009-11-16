@@ -26,7 +26,7 @@
          */
         public function StubComm()
         {
-            mEventDispatcher = new EventDispatcher();
+            super();
             mState = new StubCommState();
             mCurrentMode = CommMode.EDIT;
         }
