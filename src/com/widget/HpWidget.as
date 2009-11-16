@@ -203,11 +203,11 @@
             currentHpWrapper.percentWidth = 100;
 
             var spacer1:Spacer = new Spacer();
-            spacer1.percentWidth = 20;
+            spacer1.percentWidth = 33;
             currentHpWrapper.addChild(spacer1);
 
             var currentHpContainer:Container = new VBox();
-            currentHpContainer.percentWidth = 60;
+            currentHpContainer.percentWidth = 34;
             currentHpContainer.addChild(_CreateLabel("Current HP"));
             mCurrentHpText = new EditableText(comms);
             mCurrentHpText.scaleX = 2;
@@ -217,7 +217,7 @@
             currentHpWrapper.addChild(currentHpContainer);
 
             var spacer2:Spacer = new Spacer();
-            spacer2.percentWidth = 20;
+            spacer2.percentWidth = 33;
             currentHpWrapper.addChild(spacer2);
             vLayout.addChild(currentHpWrapper);
 
