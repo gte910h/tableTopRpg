@@ -17,7 +17,7 @@
 
     </script>
 
-    <object id="tabletoprpg" name="tabletoprpg"
+    <object id="hpgadget" name="hpgadget"
             type="application/x-shockwave-flash"
             data="http://github.com/gte910h/tableTopRpg/raw/master/bin/HpGadget.swf"
             width="300" height="200">
@@ -29,8 +29,6 @@
         <param name="allowScriptAccess" value="always" />
         <param name="allowNetworking" value="all" />
     </object>
-
-<div id="content_div" style="text-align: center; height: 30px;"></div>
 
   ]]>
   </Content>
