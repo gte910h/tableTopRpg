@@ -19,7 +19,8 @@
 
     <object id="hpgadget" name="hpgadget"
             type="application/x-shockwave-flash"
-            data="http://github.com/gte910h/tableTopRpg/raw/master/bin/HpGadget.swf">
+            data="http://github.com/gte910h/tableTopRpg/raw/master/bin/HpGadget.swf"
+            width="300" height="200">
         <param name="movie"
             value="http://github.com/gte910h/tableTopRpg/raw/master/bin/HpGadget.swf"
         />
