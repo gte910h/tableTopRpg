@@ -73,6 +73,10 @@
 
             // WaveComm ITSELF is also storing mode info about the mode it's in.
             // Not dispatching an event here because it messes with the StateChange event stuff
+            // This is technically wrong as far as state usually goes, but the problem is if
+            // you try to submit state in response to the Mode changing you're going to be
+            // very disappointed.  This will get fixed, in theory, when the lib actually does
+            // modes rather than me having to do it.
             if (null == mTempWaveMode)
             {
                 var waveMode:String = mWaveState.GetStringValue(WAVE_MODE_KEY, CommMode.VIEW);
