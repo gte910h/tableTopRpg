@@ -72,7 +72,7 @@
         {
             for (var i:String in delta)
             {
-                if (String(delta[i]) != mState.getStringValue(i))
+                if (String(delta[i]) != String(mState.getStringValue(i)))
                 {
                     return false;
                 }
