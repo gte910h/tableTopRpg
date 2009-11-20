@@ -194,7 +194,7 @@
             {
                 // Something changed.  Let's reset the last state change and fire it off
                 sendObj[_GetCommKey(LAST_UPDATE_KEY)] = "Edited";
-                sendObj[_GetCommKey(LAST_UPDATE_USER_KEY)] = mComms.GetViewingUser().GetName();
+                //sendObj[_GetCommKey(LAST_UPDATE_USER_KEY)] = mComms.GetViewingUser().GetName();
                 mComms.SubmitDelta(sendObj);
             }
         }
@@ -403,7 +403,7 @@
                 sendObj[_GetCommKey(TEMP_HP_KEY)] = tempHp;
 
                 sendObj[_GetCommKey(LAST_UPDATE_KEY)] = "Took " + totalDamageTaken + " damage" + (previousHp > bloodiedVal && currentHp <= bloodiedVal ? " (bloodied)" : "");
-                sendObj[_GetCommKey(LAST_UPDATE_USER_KEY)] = mComms.GetViewingUser().GetName();
+                //sendObj[_GetCommKey(LAST_UPDATE_USER_KEY)] = mComms.GetViewingUser().GetName();
                 mComms.SubmitDelta(sendObj);
             }
             mAdjustValue.value = 0;
@@ -425,7 +425,7 @@
                 var sendObj:Object = new Object();
                 sendObj[_GetCommKey(TEMP_HP_KEY)] = Math.max(amount, tempHp);
                 sendObj[_GetCommKey(LAST_UPDATE_KEY)] = "Gained " + amount + " Temp HP" + (tempHp > amount ? " (ineffective)" : "");
-                sendObj[_GetCommKey(LAST_UPDATE_USER_KEY)] = mComms.GetViewingUser().GetName();
+                //sendObj[_GetCommKey(LAST_UPDATE_USER_KEY)] = mComms.GetViewingUser().GetName();
                 mComms.SubmitDelta(sendObj);
             }
             mAdjustValue.value = 0;
@@ -485,7 +485,7 @@
                 sendObj[_GetCommKey(CURRENT_HP_KEY)] = currentHp;
                 sendObj[_GetCommKey(NUM_SURGES_KEY)] = surgesLeft;
                 sendObj[_GetCommKey(LAST_UPDATE_KEY)] = (surgeUsed ? "Surge" : "Healed") + " for " + amount + (overHeal > 0 ? " (+" + overHeal + " over)" : "") + (previousHp <= bloodiedVal && currentHp > bloodiedVal ? " (un-bloodied)" : "");
-                sendObj[_GetCommKey(LAST_UPDATE_USER_KEY)] = mComms.GetViewingUser().GetName();
+                //sendObj[_GetCommKey(LAST_UPDATE_USER_KEY)] = mComms.GetViewingUser().GetName();
                 mComms.SubmitDelta(sendObj);
             }
             mAdjustValue.value = 0;
