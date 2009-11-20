@@ -60,6 +60,8 @@
          */
         public function SubmitDelta(delta:Object):void
         {
+            /*
+             * Something's busted, not sure what
             var shouldSubmit:Boolean = true;
             if (null != mWaveState)
             {
@@ -70,6 +72,7 @@
             }
 
             if (shouldSubmit)
+            */
             {
                 mWave.submitDelta(delta);
             }
