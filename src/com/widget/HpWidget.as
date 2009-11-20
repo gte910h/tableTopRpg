@@ -104,6 +104,7 @@
         private static const MAX_HP_KEY:String = "maxHp";
         private static const NUM_SURGES_KEY:String = "numSurges";
         private static const LAST_UPDATE_KEY:String = "lastChange";
+        private static const LAST_UPDATE_USER_KEY:String = "lastChangeUser";
 
         /**
          * Constructor
@@ -160,20 +161,15 @@
                 mCurrentHpText.setStyle("color", 0x000000);
             }
 
+            // Show a nice update of who changed what to do what
             var lastUpdate:String = state.GetStringValue(_GetCommKey(LAST_UPDATE_KEY), "");
-            if ("" == lastUpdate)
+            var lastUpdateUser:String = state.GetStringValue(_GetCommKey(LAST_UPDATE_USER_KEY), "");
+            var fullUpdateText:String = lastUpdate;
+            if ("" != lastUpdateUser)
             {
-                trace("Hey wtf1");
-                mLastUpdateText.text = "";
+                fullUpdateText = lastUpdateUser + ":\n" + fullUpdateText;
             }
-            else
-            {
-                trace("Hey wtf2");
-                mLastUpdateText.text = "Last update:\n" + lastUpdate;
-            }
-
-            trace("lastUpdate = " + lastUpdate);
-            trace("mLastUpdateText.text = " + mLastUpdateText.text);
+            mLastUpdateText.text = fullUpdateText;
         }
 
         /**
@@ -197,7 +193,8 @@
             if (!mComms.GetState().IsSameState(sendObj))
             {
                 // Something changed.  Let's reset the last state change and fire it off
-                sendObj[_GetCommKey(LAST_UPDATE_KEY)] = "";
+                sendObj[_GetCommKey(LAST_UPDATE_KEY)] = "Edited";
+                sendObj[_GetCommKey(LAST_UPDATE_USER_KEY)] = mComms.GetViewingUser().GetName();
                 mComms.SubmitDelta(sendObj);
             }
         }
@@ -381,26 +378,32 @@
             var amount:Number = mAdjustValue.value;
             if (0 < amount)
             {
+                var maxHp:Number = parseInt(mMaxHpText.text);
+                var bloodiedVal:Number = Math.floor(maxHp * .5);
+                var previousHp:Number = parseInt(mCurrentHpText.text);
+
                 var totalDamageTaken:Number = amount;
 
                 // Damage for that amount.  Take off Temp Hp first
                 var tempHp:Number = parseInt(mTempHpText.text);
-                var currentHp:Number = parseInt(mCurrentHpText.text);
 
                 var amountTakenFromTemp:Number = Math.min(amount, tempHp);
+                var currentHp:Number = previousHp;
                 tempHp -= amountTakenFromTemp;
                 amount -= amountTakenFromTemp;
                 currentHp -= amount;
 
                 // Also cap at -maxHp just because
-                var maxHp:Number = parseInt(mMaxHpText.text);
                 currentHp = Math.max(currentHp, -maxHp);
+
 
                 // Send that info over Comms
                 var sendObj:Object = new Object();
                 sendObj[_GetCommKey(CURRENT_HP_KEY)] = currentHp;
                 sendObj[_GetCommKey(TEMP_HP_KEY)] = tempHp;
-                sendObj[_GetCommKey(LAST_UPDATE_KEY)] = "Took " + totalDamageTaken + " damage";
+
+                sendObj[_GetCommKey(LAST_UPDATE_KEY)] = "Took " + totalDamageTaken + " damage" + (previousHp > bloodiedVal && currentHp <= bloodiedVal ? " (bloodied)" : "");
+                sendObj[_GetCommKey(LAST_UPDATE_USER_KEY)] = mComms.GetViewingUser().GetName();
                 mComms.SubmitDelta(sendObj);
             }
             mAdjustValue.value = 0;
@@ -422,6 +425,7 @@
                 var sendObj:Object = new Object();
                 sendObj[_GetCommKey(TEMP_HP_KEY)] = Math.max(amount, tempHp);
                 sendObj[_GetCommKey(LAST_UPDATE_KEY)] = "Gained " + amount + " Temp HP" + (tempHp > amount ? " (ineffective)" : "");
+                sendObj[_GetCommKey(LAST_UPDATE_USER_KEY)] = mComms.GetViewingUser().GetName();
                 mComms.SubmitDelta(sendObj);
             }
             mAdjustValue.value = 0;
@@ -449,10 +453,13 @@
             var amount:Number = mAdjustValue.value;
             if (0 < amount)
             {
+                var maxHp:Number = parseInt(mMaxHpText.text);
+                var bloodiedVal:Number = Math.floor(maxHp * .5);
+                var previousHp:Number = parseInt(mCurrentHpText.text);
+
                 // Heal for that amount.  Cannot go over max HP.
                 // CurrentHp must start at 0 (if we're getting healed, it automatically becomes zero before the healing applies).
-                var maxHp:Number = parseInt(mMaxHpText.text);
-                var currentHp:Number = parseInt(mCurrentHpText.text);
+                var currentHp:Number = previousHp;
                 if (0 > currentHp)
                 {
                     currentHp = 0;
@@ -477,7 +484,8 @@
                 var sendObj:Object = new Object();
                 sendObj[_GetCommKey(CURRENT_HP_KEY)] = currentHp;
                 sendObj[_GetCommKey(NUM_SURGES_KEY)] = surgesLeft;
-                sendObj[_GetCommKey(LAST_UPDATE_KEY)] = (surgeUsed ? "Surged, gaining " : "Healed for ") + amount + (overHeal > 0 ? " (+" + overHeal + " over)" : "");
+                sendObj[_GetCommKey(LAST_UPDATE_KEY)] = (surgeUsed ? "Surge" : "Healed") + " for " + amount + (overHeal > 0 ? " (+" + overHeal + " over)" : "") + (previousHp <= bloodiedVal && currentHp > bloodiedVal ? " (un-bloodied)" : "");
+                sendObj[_GetCommKey(LAST_UPDATE_USER_KEY)] = mComms.GetViewingUser().GetName();
                 mComms.SubmitDelta(sendObj);
             }
             mAdjustValue.value = 0;

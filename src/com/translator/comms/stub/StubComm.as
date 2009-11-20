@@ -5,6 +5,7 @@
     import com.translator.comms.CommMode;
     import com.translator.comms.IComm;
     import com.translator.comms.ICommState;
+    import com.translator.comms.IUser;
     import flash.display.Sprite;
     import flash.events.Event;
     import flash.events.EventDispatcher;
@@ -79,6 +80,15 @@
                 mCurrentMode = newMode;
                 _DispatchModeChange(mCurrentMode);
             }
+        }
+
+        /**
+         * Get the user who is viewing this Comm
+         * @return The viewing user
+         */
+        public function GetViewingUser():IUser
+        {
+            return new StubUser("<you>");
         }
     }
 }

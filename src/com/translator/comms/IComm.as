@@ -53,6 +53,11 @@
          * @param newMode New mode (from CommMode)
          */
         function ChangeMode(newMode:String):void;
-    }
 
+        /**
+         * Get the user who is viewing this Comm
+         * @return The viewing user
+         */
+        function GetViewingUser():IUser;
+    }
 }

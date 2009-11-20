@@ -7,6 +7,7 @@
     import com.translator.comms.CommMode;
     import com.translator.comms.IComm;
     import com.translator.comms.ICommState;
+    import com.translator.comms.IUser;
     import flash.events.EventDispatcher;
 
     /**
@@ -126,6 +127,15 @@
         {
             // TODO implement correctly
             return mTempWaveMode;
+        }
+
+        /**
+         * Get the user who is viewing this Comm
+         * @return The viewing user
+         */
+        public function GetViewingUser():IUser
+        {
+            return new WaveUser(mWave.getViewer());
         }
     }
 }
