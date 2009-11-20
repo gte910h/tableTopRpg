@@ -47,6 +47,10 @@
          */
         private var mDisplay:Text;
 
+        /**
+         * Constructor
+         * @param comms Communication layer
+         */
         public function EditableText(comms:IComm)
         {
             mComms = comms;
@@ -66,7 +70,6 @@
 
             addEventListener(FlexEvent.UPDATE_COMPLETE, _UpdateComplete);
         }
-
 
         /**
          * This Flex obejct has been updated properly

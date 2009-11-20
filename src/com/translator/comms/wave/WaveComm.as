@@ -59,7 +59,19 @@
          */
         public function SubmitDelta(delta:Object):void
         {
-            mWave.submitDelta(delta);
+            var shouldSubmit:Boolean = true;
+            if (null != mWaveState)
+            {
+                if (mWaveState.IsSameState(delta))
+                {
+                    shouldSubmit = false;
+                }
+            }
+
+            if (shouldSubmit)
+            {
+                mWave.submitDelta(delta);
+            }
         }
 
         /**
@@ -79,7 +91,7 @@
             // modes rather than me having to do it.
             if (null == mTempWaveMode)
             {
-                var waveMode:String = mWaveState.GetStringValue(WAVE_MODE_KEY, CommMode.VIEW);
+                var waveMode:String = mWaveState.GetStringValue(WAVE_MODE_KEY, CommMode.EDIT);
                 if (null != waveMode)
                 {
                     mTempWaveMode = waveMode;

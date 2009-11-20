@@ -62,5 +62,22 @@
             }
             return [];
         }
+
+        /**
+         * Return whether the given state object is strictly contained within the current state object
+         * @param delta Change we are considering applying
+         * @return True if that change is already what we have and therefore we don't need to submit it
+         */
+        public function IsSameState(delta:Object):Boolean
+        {
+            for (var i:String in delta)
+            {
+                if (String(delta[i]) != mState.getStringValue(i))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

@@ -25,5 +25,12 @@
          * @return set of keys
          */
         function GetKeys():Array;
+
+        /**
+         * Return whether the given state object is strictly contained within the current state object
+         * @param delta Change we are considering applying
+         * @return True if that change is already what we have and therefore we don't need to submit it
+         */
+        function IsSameState(delta:Object):Boolean;
     }
 }

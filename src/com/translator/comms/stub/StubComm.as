@@ -56,12 +56,16 @@
         public function SubmitDelta(delta:Object):void
         {
             trace("StubComm::SubmitDelta");
-            for (var i:String in delta)
+
+            if (!mState.IsSameState(delta))
             {
-                trace("[" + i + "] => " + delta[i]);
-                mState.SetValue(i, delta[i]);
+                for (var i:String in delta)
+                {
+                    trace("[" + i + "] => " + delta[i]);
+                    mState.SetValue(i, delta[i]);
+                }
+                _DispatchStateChange(mState);
             }
-            _DispatchStateChange(mState);
         }
 
         /**

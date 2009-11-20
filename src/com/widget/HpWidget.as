@@ -18,6 +18,7 @@
     import mx.controls.LinkButton;
     import mx.controls.NumericStepper;
     import mx.controls.Spacer;
+    import mx.controls.Text;
     import mx.controls.TextInput;
     import mx.core.Container;
     import mx.events.FlexEvent;
@@ -69,6 +70,11 @@
         private var mNameInput:TextInput;
 
         /**
+         * Text for whatever update happened last
+         */
+        private var mLastUpdateText:Text;
+
+        /**
          * Control bar across the bottom when in View mode
          */
         private var mBottomBarViewMode:Container;
@@ -97,6 +103,7 @@
         private static const TEMP_HP_KEY:String = "tempHp";
         private static const MAX_HP_KEY:String = "maxHp";
         private static const NUM_SURGES_KEY:String = "numSurges";
+        private static const LAST_UPDATE_KEY:String = "lastChange";
 
         /**
          * Constructor
@@ -133,12 +140,40 @@
          */
         private function _ApplyState(state:ICommState):void
         {
-            mCurrentHpText.text = state.GetNumberValue(_GetCommKey(CURRENT_HP_KEY), 25).toString();
-            mMaxHpText.text = state.GetNumberValue(_GetCommKey(MAX_HP_KEY), 25).toString();
+            var currentHp:Number = state.GetNumberValue(_GetCommKey(CURRENT_HP_KEY), 25);
+            var maxHp:Number = state.GetNumberValue(_GetCommKey(MAX_HP_KEY), 25);
+
+            mCurrentHpText.text = currentHp.toString();
+            mMaxHpText.text = maxHp.toString();
             mTempHpText.text = state.GetNumberValue(_GetCommKey(TEMP_HP_KEY), 0).toString();
             mSurgesText.text = state.GetNumberValue(_GetCommKey(NUM_SURGES_KEY), 5).toString();
             mNameInput.text = state.GetStringValue(_GetCommKey(NAME_KEY), "John Smith");
             this.title = mNameInput.text;
+
+            // Bloodied or not?
+            if (currentHp <= Math.floor(maxHp * .5))
+            {
+                mCurrentHpText.setStyle("color", 0xc00000);
+            }
+            else
+            {
+                mCurrentHpText.setStyle("color", 0x000000);
+            }
+
+            var lastUpdate:String = state.GetStringValue(_GetCommKey(LAST_UPDATE_KEY), "");
+            if ("" == lastUpdate)
+            {
+                trace("Hey wtf1");
+                mLastUpdateText.text = "";
+            }
+            else
+            {
+                trace("Hey wtf2");
+                mLastUpdateText.text = "Last update:\n" + lastUpdate;
+            }
+
+            trace("lastUpdate = " + lastUpdate);
+            trace("mLastUpdateText.text = " + mLastUpdateText.text);
         }
 
         /**
@@ -159,7 +194,12 @@
             sendObj[_GetCommKey(TEMP_HP_KEY)] = tempHp;
             sendObj[_GetCommKey(NUM_SURGES_KEY)] = numSurges;
 
-            mComms.SubmitDelta(sendObj);
+            if (!mComms.GetState().IsSameState(sendObj))
+            {
+                // Something changed.  Let's reset the last state change and fire it off
+                sendObj[_GetCommKey(LAST_UPDATE_KEY)] = "";
+                mComms.SubmitDelta(sendObj);
+            }
         }
 
         /**
@@ -216,9 +256,10 @@
             currentHpContainer.addChild(mCurrentHpText);
             currentHpWrapper.addChild(currentHpContainer);
 
-            var spacer2:Spacer = new Spacer();
-            spacer2.percentWidth = 33;
-            currentHpWrapper.addChild(spacer2);
+            mLastUpdateText = new Text();
+            mLastUpdateText.percentWidth = 33;
+            mLastUpdateText.enabled = false;
+            currentHpWrapper.addChild(mLastUpdateText);
             vLayout.addChild(currentHpWrapper);
 
             var hLayout:Container = new HBox();
@@ -340,6 +381,8 @@
             var amount:Number = mAdjustValue.value;
             if (0 < amount)
             {
+                var totalDamageTaken:Number = amount;
+
                 // Damage for that amount.  Take off Temp Hp first
                 var tempHp:Number = parseInt(mTempHpText.text);
                 var currentHp:Number = parseInt(mCurrentHpText.text);
@@ -357,6 +400,7 @@
                 var sendObj:Object = new Object();
                 sendObj[_GetCommKey(CURRENT_HP_KEY)] = currentHp;
                 sendObj[_GetCommKey(TEMP_HP_KEY)] = tempHp;
+                sendObj[_GetCommKey(LAST_UPDATE_KEY)] = "Took " + totalDamageTaken + " damage";
                 mComms.SubmitDelta(sendObj);
             }
             mAdjustValue.value = 0;
@@ -373,13 +417,12 @@
             {
                 // Temp HP does not stack.  It just becomes the higher of what it was before and the new value
                 var tempHp:Number = parseInt(mTempHpText.text);
-                if (amount > tempHp)
-                {
-                    // Send a change over comms
-                    var sendObj:Object = new Object();
-                    sendObj[_GetCommKey(TEMP_HP_KEY)] = amount;
-                    mComms.SubmitDelta(sendObj);
-                }
+
+                // Send a change over comms
+                var sendObj:Object = new Object();
+                sendObj[_GetCommKey(TEMP_HP_KEY)] = Math.max(amount, tempHp);
+                sendObj[_GetCommKey(LAST_UPDATE_KEY)] = "Gained " + amount + " Temp HP" + (tempHp > amount ? " (ineffective)" : "");
+                mComms.SubmitDelta(sendObj);
             }
             mAdjustValue.value = 0;
         }
@@ -415,8 +458,11 @@
                     currentHp = 0;
                 }
                 currentHp += amount;
+                var overHeal:Number = 0;
                 if (currentHp > maxHp)
                 {
+                    overHeal = currentHp - maxHp;
+                    amount -= overHeal;
                     currentHp = maxHp;
                 }
 
@@ -431,6 +477,7 @@
                 var sendObj:Object = new Object();
                 sendObj[_GetCommKey(CURRENT_HP_KEY)] = currentHp;
                 sendObj[_GetCommKey(NUM_SURGES_KEY)] = surgesLeft;
+                sendObj[_GetCommKey(LAST_UPDATE_KEY)] = (surgeUsed ? "Surged, gaining " : "Healed for ") + amount + (overHeal > 0 ? " (+" + overHeal + " over)" : "");
                 mComms.SubmitDelta(sendObj);
             }
             mAdjustValue.value = 0;
@@ -480,11 +527,13 @@
                 case CommMode.EDIT:
                     mBottomBarViewMode.visible = false;
                     mBottomBarEditMode.visible = true;
+                    mLastUpdateText.visible = false;
                     break;
 
                 case CommMode.VIEW:
                     mBottomBarViewMode.visible = true;
                     mBottomBarEditMode.visible = false;
+                    mLastUpdateText.visible = true;
                     break;
             }
         }
