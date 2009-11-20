@@ -70,6 +70,8 @@
          */
         public function IsSameState(delta:Object):Boolean
         {
+            /*
+             * Dunno why but couldn't get this working
             for (var i:String in delta)
             {
                 if (String(delta[i]) != String(mState.getStringValue(i)))
@@ -78,6 +80,8 @@
                 }
             }
             return true;
+            */
+            return false;
         }
     }
 }
