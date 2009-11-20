@@ -19,7 +19,7 @@
          */
         public function WaveUser(participant:WaveParticipant)
         {
-            mParticipant = mParticipant;
+            mParticipant = participant;
         }
 
         /**
