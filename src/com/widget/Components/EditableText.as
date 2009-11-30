@@ -6,14 +6,14 @@
     import flash.events.Event;
     import mx.containers.Box;
     import mx.containers.Canvas;
-    import mx.controls.Text;
+    import mx.controls.Label;
     import mx.controls.TextInput;
     import mx.events.FlexEvent;
 
     /**
      * Class for a TextField that can be editable, or not, based on whether the IComm is currently in Edit Mode
      */
-    public class EditableText extends Box
+    public class EditableText extends Canvas
     {
         /**
          * Communication layer
@@ -45,7 +45,7 @@
         /**
          * Display field
          */
-        private var mDisplay:Text;
+        private var mDisplay:Label;
 
         /**
          * Constructor
@@ -55,8 +55,7 @@
         {
             mComms = comms;
 
-            mDisplay = new Text();
-            mDisplay.includeInLayout = false;
+            mDisplay = new Label();
             mDisplay.percentWidth = 100;
             mDisplay.percentHeight = 100;
             addChild(mDisplay);

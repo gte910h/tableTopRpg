@@ -14,12 +14,14 @@
     import mx.containers.Panel;
     import mx.containers.VBox;
     import mx.controls.Button;
+    import mx.controls.HRule;
     import mx.controls.Label;
     import mx.controls.LinkButton;
     import mx.controls.NumericStepper;
     import mx.controls.Spacer;
     import mx.controls.Text;
     import mx.controls.TextInput;
+    import mx.controls.VRule;
     import mx.core.Container;
     import mx.events.FlexEvent;
 
@@ -143,22 +145,37 @@
         {
             var currentHp:Number = state.GetNumberValue(_GetCommKey(CURRENT_HP_KEY), 25);
             var maxHp:Number = state.GetNumberValue(_GetCommKey(MAX_HP_KEY), 25);
+            var tempHp:Number = state.GetNumberValue(_GetCommKey(TEMP_HP_KEY), 0);
 
             mCurrentHpText.text = currentHp.toString();
             mMaxHpText.text = maxHp.toString();
-            mTempHpText.text = state.GetNumberValue(_GetCommKey(TEMP_HP_KEY), 0).toString();
+            mTempHpText.text = tempHp.toString();
             mSurgesText.text = state.GetNumberValue(_GetCommKey(NUM_SURGES_KEY), 5).toString();
             mNameInput.text = state.GetStringValue(_GetCommKey(NAME_KEY), "John Smith");
             this.title = mNameInput.text;
 
-            // Bloodied or not?
-            if (currentHp <= Math.floor(maxHp * .5))
+            // Change current HP color depending on status
+            if (currentHp == maxHp)
+            {
+                mCurrentHpText.setStyle("color", 0x008000);
+            }
+            else if (currentHp <= Math.floor(maxHp * .5))
             {
                 mCurrentHpText.setStyle("color", 0xc00000);
             }
             else
             {
                 mCurrentHpText.setStyle("color", 0x000000);
+            }
+
+            // Has temp HP or not?
+            if (0 < tempHp)
+            {
+                mTempHpText.setStyle("color", 0x00dddd);
+            }
+            else
+            {
+                mTempHpText.setStyle("color", 0x000000);
             }
 
             // Show a nice update of who changed what to do what
@@ -170,6 +187,8 @@
                 fullUpdateText = lastUpdateUser + ":\n" + fullUpdateText;
             }
             mLastUpdateText.text = fullUpdateText;
+            mLastUpdateText.setStyle("fontSize", 9);
+            mLastUpdateText.setStyle("textAlign", "right");
         }
 
         /**
@@ -233,11 +252,13 @@
         {
             var vLayout:Container = new VBox();
             vLayout.percentWidth = 100;
-            vLayout.percentHeight = 70;
+            vLayout.percentHeight = 100;
+            vLayout.setStyle("verticalGap", 0);
 
             // Doing a bunch of shenanigans simply becuase I cannot figure out how "Center" works.
             var currentHpWrapper:Container = new HBox();
             currentHpWrapper.percentWidth = 100;
+            currentHpWrapper.percentHeight = 75;
 
             var spacer1:Spacer = new Spacer();
             spacer1.percentWidth = 33;
@@ -245,11 +266,12 @@
 
             var currentHpContainer:Container = new VBox();
             currentHpContainer.percentWidth = 34;
-            currentHpContainer.addChild(_CreateLabel("Current HP"));
+            currentHpContainer.setStyle("verticalGap", 0);
+            currentHpContainer.addChild(_CreateLabel("Current HP", 100));
             mCurrentHpText = new EditableText(comms);
-            mCurrentHpText.scaleX = 2;
-            mCurrentHpText.scaleY = 2;
             mCurrentHpText.percentWidth = 100;
+            mCurrentHpText.setStyle("textAlign", "center");
+            mCurrentHpText.setStyle("fontSize", 45);
             currentHpContainer.addChild(mCurrentHpText);
             currentHpWrapper.addChild(currentHpContainer);
 
@@ -259,30 +281,42 @@
             currentHpWrapper.addChild(mLastUpdateText);
             vLayout.addChild(currentHpWrapper);
 
+            vLayout.addChild(_CreateHRule());
+
+            // The bottom portion, containing all the smaller status text
             var hLayout:Container = new HBox();
             hLayout.percentWidth = 100;
+            hLayout.percentHeight = 25;
 
             var maxHpContainer:Container = new VBox();
             maxHpContainer.percentWidth = 33;
-            maxHpContainer.addChild(_CreateLabel("Max HP"));
+            maxHpContainer.setStyle("verticalGap", 0);
+            maxHpContainer.addChild(_CreateLabel("Max HP", 100));
             mMaxHpText = new EditableText(comms);
             mMaxHpText.percentWidth = 100;
+            mMaxHpText.setStyle("textAlign", "center");
             maxHpContainer.addChild(mMaxHpText);
             hLayout.addChild(maxHpContainer);
+            hLayout.addChild(_CreateVRule());
 
             var tempHpContainer:Container = new VBox();
             tempHpContainer.percentWidth = 34;
-            tempHpContainer.addChild(_CreateLabel("Temp HP"));
+            tempHpContainer.setStyle("verticalGap", 0);
+            tempHpContainer.addChild(_CreateLabel("Temp HP", 100));
             mTempHpText = new EditableText(comms);
             mTempHpText.percentWidth = 100;
+            mTempHpText.setStyle("textAlign", "center");
             tempHpContainer.addChild(mTempHpText);
             hLayout.addChild(tempHpContainer);
+            hLayout.addChild(_CreateVRule());
 
             var surgesContainer:Container = new VBox();
             surgesContainer.percentWidth = 33;
-            surgesContainer.addChild(_CreateLabel("Surges"));
+            surgesContainer.setStyle("verticalGap", 0);
+            surgesContainer.addChild(_CreateLabel("Surges", 100));
             mSurgesText = new EditableText(comms);
             mSurgesText.percentWidth = 100;
+            mSurgesText.setStyle("textAlign", "center");
             surgesContainer.addChild(mSurgesText);
             hLayout.addChild(surgesContainer);
 
@@ -295,11 +329,35 @@
          * @param text Text to give the label
          * @return The label
          */
-        private function _CreateLabel(text:String):Label
+        private function _CreateLabel(text:String, percentWidth:Number=Number.NaN):Label
         {
-            var label:Label = new Label();
+            var label:Text = new Text();
             label.text = text;
+            label.percentWidth = percentWidth;
+            label.setStyle("textAlign", "center");
             return label;
+        }
+
+        /**
+         * Create a little horizontal divider thingy
+         * @return The divider
+         */
+        private function _CreateHRule():HRule
+        {
+            var ruler:HRule = new HRule();
+            ruler.percentWidth = 100;
+            return ruler;
+        }
+
+        /**
+         * Create a little vertical divider thingy
+         * @return The divider
+         */
+        private function _CreateVRule():VRule
+        {
+            var ruler:VRule = new VRule();
+            ruler.percentHeight = 100;
+            return ruler;
         }
 
         /**
@@ -366,7 +424,13 @@
          */
         private function _HealClicked(me:MouseEvent):void
         {
-            _AttemptHeal(false);
+            // Can only heal if we put in a number
+            var amount:Number = mAdjustValue.value;
+            if (0 < amount)
+            {
+                _PerformHeal(amount, false);
+            }
+            mAdjustValue.value = 0;
         }
 
         /**
@@ -440,55 +504,70 @@
             // Can only surge if we have a surge left
             if (0 < parseInt(mSurgesText.text))
             {
-                _AttemptHeal(true);
+                _PerformHeal(mAdjustValue.value, true);
+                mAdjustValue.value = 0;
             }
         }
 
         /**
-         * Attempt to healing event.  Will look at the current amount on mAdjustValue
+         * Perform healing
          * @param surgeUsed Whether a surge was used
          */
-        private function _AttemptHeal(surgeUsed:Boolean=false):void
+        private function _PerformHeal(amount:Number, surgeUsed:Boolean=false):void
         {
-            var amount:Number = mAdjustValue.value;
-            if (0 < amount)
+            var initialHealAmount:Number = amount;
+            var maxHp:Number = parseInt(mMaxHpText.text);
+            var bloodiedVal:Number = Math.floor(maxHp * .5);
+            var previousHp:Number = parseInt(mCurrentHpText.text);
+
+            // Heal for that amount.  Cannot go over max HP.
+            // CurrentHp must start at 0 (if we're getting healed, it automatically becomes zero before the healing applies).
+            var currentHp:Number = previousHp;
+            if (0 > currentHp)
             {
-                var maxHp:Number = parseInt(mMaxHpText.text);
-                var bloodiedVal:Number = Math.floor(maxHp * .5);
-                var previousHp:Number = parseInt(mCurrentHpText.text);
-
-                // Heal for that amount.  Cannot go over max HP.
-                // CurrentHp must start at 0 (if we're getting healed, it automatically becomes zero before the healing applies).
-                var currentHp:Number = previousHp;
-                if (0 > currentHp)
-                {
-                    currentHp = 0;
-                }
-                currentHp += amount;
-                var overHeal:Number = 0;
-                if (currentHp > maxHp)
-                {
-                    overHeal = currentHp - maxHp;
-                    amount -= overHeal;
-                    currentHp = maxHp;
-                }
-
-                // If we used a surge, decrease by 1
-                var surgesLeft:Number = parseInt(mSurgesText.text);
-                if (surgeUsed)
-                {
-                    surgesLeft -= 1;
-                }
-
-                // Send that info over Comms
-                var sendObj:Object = new Object();
-                sendObj[_GetCommKey(CURRENT_HP_KEY)] = currentHp;
-                sendObj[_GetCommKey(NUM_SURGES_KEY)] = surgesLeft;
-                sendObj[_GetCommKey(LAST_UPDATE_KEY)] = (surgeUsed ? "Surge" : "Healed") + " for " + amount + (overHeal > 0 ? " (+" + overHeal + " over)" : "") + (previousHp <= bloodiedVal && currentHp > bloodiedVal ? " (un-bloodied)" : "");
-                sendObj[_GetCommKey(LAST_UPDATE_USER_KEY)] = mComms.GetViewingUser().GetName();
-                mComms.SubmitDelta(sendObj);
+                currentHp = 0;
             }
-            mAdjustValue.value = 0;
+            currentHp += amount;
+            var overHeal:Number = 0;
+            if (currentHp > maxHp)
+            {
+                overHeal = currentHp - maxHp;
+                amount -= overHeal;
+                currentHp = maxHp;
+            }
+
+            // If we used a surge, decrease by 1
+            var surgesLeft:Number = parseInt(mSurgesText.text);
+            if (surgeUsed)
+            {
+                surgesLeft -= 1;
+            }
+
+            var statusUpdate:String;
+            if (0 == initialHealAmount && surgeUsed)
+            {
+                statusUpdate = "Spent a surge (no healing)";
+            }
+            else
+            {
+                statusUpdate = (surgeUsed ? "Surge" : "Healed") + " for " + amount;
+                if (overHeal > 0)
+                {
+                    statusUpdate += " (+" + overHeal + " over)"
+                }
+                if (previousHp <= bloodiedVal && currentHp > bloodiedVal)
+                {
+                    statusUpdate += " (un-bloodied)";
+                }
+            }
+
+            // Send that info over Comms
+            var sendObj:Object = new Object();
+            sendObj[_GetCommKey(CURRENT_HP_KEY)] = currentHp;
+            sendObj[_GetCommKey(NUM_SURGES_KEY)] = surgesLeft;
+            sendObj[_GetCommKey(LAST_UPDATE_KEY)] = statusUpdate;
+            sendObj[_GetCommKey(LAST_UPDATE_USER_KEY)] = mComms.GetViewingUser().GetName();
+            mComms.SubmitDelta(sendObj);
         }
 
 
