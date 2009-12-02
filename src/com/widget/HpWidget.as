@@ -6,6 +6,7 @@
     import com.translator.comms.IComm;
     import com.translator.comms.ICommState;
     import com.widget.Components.EditableText;
+    import com.widget.Components.TextList;
     import flash.events.Event;
     import flash.events.MouseEvent;
     import mx.containers.Box;
@@ -127,16 +128,25 @@
             mCommPrefix = "hp" + sInstances;
             sInstances++;
 
+
+            // Alright, here's the layout.
+            // The entire thing is an HBox.  The left side of that is a VBox
+            // The top of the VBox is the HP info container.  The bottom of the VBox
+            // has little control buttons.
+            // The right side of the HBox is going to be status text and updates.
+
+
             var hBox:HBox = new HBox();
-            var vBox:VBox = new VBox();
-            vBox.setStyle("verticalGap", 0);
-            _AddObjectToContainer(hBox, vBox, 70);
+            hBox.setStyle("horizontalGap", 2);
+            _AddObjectToContainer(this, hBox);
+
+            var leftVBox:VBox = new VBox();
+            leftVBox.setStyle("verticalGap", 0);
+            _AddObjectToContainer(hBox, leftVBox, 70);
 
             mHpContainerPanel = new Panel();
             _AddObjectToContainer(mHpContainerPanel,  _SetupInfoArea(comms));
-            _AddObjectToContainer(vBox, mHpContainerPanel);
-
-            vBox.addChild(mHpContainerPanel);
+            _AddObjectToContainer(leftVBox, mHpContainerPanel);
 
             mBottomBarViewMode = _SetupBottomViewBar(comms);
             mBottomBarEditMode = _SetupBottomEditBar(comms);
@@ -146,15 +156,21 @@
             var bottomCanvas:Canvas = new Canvas();
             _AddObjectToContainer(bottomCanvas, mBottomBarViewMode);
             _AddObjectToContainer(bottomCanvas, mBottomBarEditMode);
-            _AddObjectToContainer(bottomHBox, bottomCanvas);
-            _AddObjectToContainer(vBox, bottomHBox);
+            _AddObjectToContainer(bottomHBox, bottomCanvas, 92); // Leaving some room for the edit button
+            _AddObjectToContainer(leftVBox, bottomHBox);
 
+
+            var rightVBox:VBox = new VBox();
+            rightVBox.setStyle("verticalGap", 2);
+            _AddObjectToContainer(hBox, rightVBox, 30);
+
+            var textList:TextList = new TextList(comms);
+            _AddObjectToContainer(rightVBox, textList, 100, 63);
 
             mLastUpdateText = new Text();
-            mLastUpdateText.enabled = true;
-            _AddObjectToContainer(hBox, mLastUpdateText, 30);
-
-            _AddObjectToContainer(this, hBox);
+            mLastUpdateText.setStyle("fontSize", 9);
+            mLastUpdateText.setStyle("textAlign", "right");
+            _AddObjectToContainer(rightVBox, mLastUpdateText, 100, 37);
 
 
             mComms.AddEventModeChange(_EventModeChange);
@@ -213,8 +229,6 @@
                 fullUpdateText = lastUpdateUser + ":\n" + fullUpdateText;
             }
             mLastUpdateText.text = fullUpdateText;
-            mLastUpdateText.setStyle("fontSize", 9);
-            mLastUpdateText.setStyle("textAlign", "right");
         }
 
         /**
@@ -297,14 +311,12 @@
             surgesContainer.addChild(_CreateLabel("Surge", 30));
             _AddObjectToContainer(surgesContainer, mSurgesText, 70);
 
-
             var sideLayout:Container = new VBox();
             _AddObjectToContainer(sideLayout, maxHpContainer);
             sideLayout.addChild(_CreateHRule());
             _AddObjectToContainer(sideLayout, tempHpContainer);
             sideLayout.addChild(_CreateHRule());
             _AddObjectToContainer(sideLayout, surgesContainer);
-
 
             var currentHpContainer:Container = new VBox();
             currentHpContainer.percentWidth = 34;

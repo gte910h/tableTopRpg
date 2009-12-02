@@ -88,7 +88,7 @@
          */
         public function GetViewingUser():IUser
         {
-            return new StubUser("<you>");
+            return new StubUser("<your longish name here>");
         }
     }
 }
