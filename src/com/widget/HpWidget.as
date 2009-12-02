@@ -300,9 +300,9 @@
 
             var sideLayout:Container = new VBox();
             _AddObjectToContainer(sideLayout, maxHpContainer);
-            _AddObjectToContainer(sideLayout, _CreateHRule());
+            sideLayout.addChild(_CreateHRule());
             _AddObjectToContainer(sideLayout, tempHpContainer);
-            _AddObjectToContainer(sideLayout, _CreateHRule());
+            sideLayout.addChild(_CreateHRule());
             _AddObjectToContainer(sideLayout, surgesContainer);
 
 
@@ -318,8 +318,9 @@
             var hLayout:Container = new HBox();
             hLayout.setStyle("horizontalGap", 0);
 
-            _AddObjectToContainer(hLayout, sideLayout, 36);
-            _AddObjectToContainer(hLayout, currentHpContainer, 64);
+            _AddObjectToContainer(hLayout, sideLayout, 38);
+            hLayout.addChild(_CreateVRule());
+            _AddObjectToContainer(hLayout, currentHpContainer, 62);
 
             return hLayout;
         }
