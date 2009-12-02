@@ -67,15 +67,6 @@
             mInput.addEventListener(Event.CHANGE, _TextInputChanged);
             mComms.AddEventModeChange(_EventModeChange);
 
-            addEventListener(FlexEvent.UPDATE_COMPLETE, _UpdateComplete);
-        }
-
-        /**
-         * This Flex obejct has been updated properly
-         * @param e Event
-         */
-        private function _UpdateComplete(e:Event):void
-        {
             _SetModeTo(mComms.GetMode());
         }
 

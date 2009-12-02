@@ -9,6 +9,7 @@
     import flash.events.Event;
     import flash.events.MouseEvent;
     import mx.containers.Box;
+    import mx.containers.Canvas;
     import mx.containers.ControlBar;
     import mx.containers.HBox;
     import mx.containers.Panel;
@@ -23,17 +24,23 @@
     import mx.controls.TextInput;
     import mx.controls.VRule;
     import mx.core.Container;
+    import mx.core.UIComponent;
     import mx.events.FlexEvent;
 
     /**
      * Simple UI Widget to show HP, max HP, etc.
      */
-    public class HpWidget extends Panel
+    public class HpWidget extends Canvas
     {
         /**
          * Communication layer
          */
         private var mComms:IComm;
+
+        /**
+         * The panel that will hold all the HP data and character name
+         */
+        private var mHpContainerPanel:Panel;
 
         /**
          * Prefix we will send to every comm message.  This is to avoid conflicts
@@ -115,26 +122,45 @@
         public function HpWidget(comms:IComm)
         {
             mComms = comms;
+
+            // This prefix and instance stuff allows us to have multiple copies of this widget in 1 gadget
             mCommPrefix = "hp" + sInstances;
             sInstances++;
 
-            var topLayout:Container = _SetupInfoArea(comms);
-            addChild(topLayout);
+            var hBox:HBox = new HBox();
+            var vBox:VBox = new VBox();
+            vBox.setStyle("verticalGap", 0);
+            _AddObjectToContainer(hBox, vBox, 70);
+
+            mHpContainerPanel = new Panel();
+            _AddObjectToContainer(mHpContainerPanel,  _SetupInfoArea(comms));
+            _AddObjectToContainer(vBox, mHpContainerPanel);
+
+            vBox.addChild(mHpContainerPanel);
 
             mBottomBarViewMode = _SetupBottomViewBar(comms);
             mBottomBarEditMode = _SetupBottomEditBar(comms);
 
-            // We want both the Bottom Bar and the View bar to be on top of each other.
-            // To do this, we say that the first one should not be included in the layout
-            // code.  It will still go in the next slot, but will not "take up space".
-            mBottomBarViewMode.includeInLayout = false;
-            addChild(mBottomBarViewMode);
-            addChild(mBottomBarEditMode);
+            // These bottom bar things need to be on top of each other
+            var bottomHBox:HBox = new HBox();
+            var bottomCanvas:Canvas = new Canvas();
+            _AddObjectToContainer(bottomCanvas, mBottomBarViewMode);
+            _AddObjectToContainer(bottomCanvas, mBottomBarEditMode);
+            _AddObjectToContainer(bottomHBox, bottomCanvas);
+            _AddObjectToContainer(vBox, bottomHBox);
+
+
+            mLastUpdateText = new Text();
+            mLastUpdateText.enabled = true;
+            _AddObjectToContainer(hBox, mLastUpdateText, 30);
+
+            _AddObjectToContainer(this, hBox);
+
 
             mComms.AddEventModeChange(_EventModeChange);
             mComms.AddEventStateChange(_EventStateChange);
 
-            addEventListener(FlexEvent.UPDATE_COMPLETE, _UpdateComplete);
+            _SetModeTo(mComms.GetMode());
             _ApplyState(mComms.GetState());
         }
 
@@ -152,7 +178,7 @@
             mTempHpText.text = tempHp.toString();
             mSurgesText.text = state.GetNumberValue(_GetCommKey(NUM_SURGES_KEY), 5).toString();
             mNameInput.text = state.GetStringValue(_GetCommKey(NAME_KEY), "John Smith");
-            this.title = mNameInput.text;
+            mHpContainerPanel.title = mNameInput.text;
 
             // Change current HP color depending on status
             if (currentHp == maxHp)
@@ -250,78 +276,66 @@
          */
         private function _SetupInfoArea(comms:IComm):Container
         {
-            var vLayout:Container = new VBox();
-            vLayout.percentWidth = 100;
-            vLayout.percentHeight = 100;
-            vLayout.setStyle("verticalGap", 0);
+            var maxHpContainer:Container = new HBox();4
+            maxHpContainer.setStyle("horizontalGap", 0);
+            mMaxHpText = new EditableText(comms);
+            mMaxHpText.setStyle("textAlign", "right");
+            maxHpContainer.addChild(_CreateLabel("Max", 30));
+            _AddObjectToContainer(maxHpContainer, mMaxHpText, 70);
 
-            // Doing a bunch of shenanigans simply becuase I cannot figure out how "Center" works.
-            var currentHpWrapper:Container = new HBox();
-            currentHpWrapper.percentWidth = 100;
-            currentHpWrapper.percentHeight = 75;
+            var tempHpContainer:Container = new HBox();
+            tempHpContainer.setStyle("horizontalGap", 0);
+            mTempHpText = new EditableText(comms);
+            mTempHpText.setStyle("textAlign", "right");
+            tempHpContainer.addChild(_CreateLabel("Temp", 30));
+            _AddObjectToContainer(tempHpContainer, mTempHpText, 70);
 
-            var spacer1:Spacer = new Spacer();
-            spacer1.percentWidth = 33;
-            currentHpWrapper.addChild(spacer1);
+            var surgesContainer:Container = new HBox();
+            surgesContainer.setStyle("horizontalGap", 0);
+            mSurgesText = new EditableText(comms);
+            mSurgesText.setStyle("textAlign", "right");
+            surgesContainer.addChild(_CreateLabel("Surge", 30));
+            _AddObjectToContainer(surgesContainer, mSurgesText, 70);
+
+
+            var sideLayout:Container = new VBox();
+            _AddObjectToContainer(sideLayout, maxHpContainer);
+            _AddObjectToContainer(sideLayout, _CreateHRule());
+            _AddObjectToContainer(sideLayout, tempHpContainer);
+            _AddObjectToContainer(sideLayout, _CreateHRule());
+            _AddObjectToContainer(sideLayout, surgesContainer);
+
 
             var currentHpContainer:Container = new VBox();
             currentHpContainer.percentWidth = 34;
             currentHpContainer.setStyle("verticalGap", 0);
-            currentHpContainer.addChild(_CreateLabel("Current HP", 100));
             mCurrentHpText = new EditableText(comms);
-            mCurrentHpText.percentWidth = 100;
             mCurrentHpText.setStyle("textAlign", "center");
-            mCurrentHpText.setStyle("fontSize", 45);
-            currentHpContainer.addChild(mCurrentHpText);
-            currentHpWrapper.addChild(currentHpContainer);
+            mCurrentHpText.setStyle("fontSize", 58);
+            _AddObjectToContainer(currentHpContainer, mCurrentHpText);
 
-            mLastUpdateText = new Text();
-            mLastUpdateText.percentWidth = 33;
-            mLastUpdateText.enabled = false;
-            currentHpWrapper.addChild(mLastUpdateText);
-            vLayout.addChild(currentHpWrapper);
 
-            vLayout.addChild(_CreateHRule());
-
-            // The bottom portion, containing all the smaller status text
             var hLayout:Container = new HBox();
-            hLayout.percentWidth = 100;
-            hLayout.percentHeight = 25;
+            hLayout.setStyle("horizontalGap", 0);
 
-            var maxHpContainer:Container = new VBox();
-            maxHpContainer.percentWidth = 33;
-            maxHpContainer.setStyle("verticalGap", 0);
-            maxHpContainer.addChild(_CreateLabel("Max HP", 100));
-            mMaxHpText = new EditableText(comms);
-            mMaxHpText.percentWidth = 100;
-            mMaxHpText.setStyle("textAlign", "center");
-            maxHpContainer.addChild(mMaxHpText);
-            hLayout.addChild(maxHpContainer);
-            hLayout.addChild(_CreateVRule());
+            _AddObjectToContainer(hLayout, sideLayout, 36);
+            _AddObjectToContainer(hLayout, currentHpContainer, 64);
 
-            var tempHpContainer:Container = new VBox();
-            tempHpContainer.percentWidth = 34;
-            tempHpContainer.setStyle("verticalGap", 0);
-            tempHpContainer.addChild(_CreateLabel("Temp HP", 100));
-            mTempHpText = new EditableText(comms);
-            mTempHpText.percentWidth = 100;
-            mTempHpText.setStyle("textAlign", "center");
-            tempHpContainer.addChild(mTempHpText);
-            hLayout.addChild(tempHpContainer);
-            hLayout.addChild(_CreateVRule());
+            return hLayout;
+        }
 
-            var surgesContainer:Container = new VBox();
-            surgesContainer.percentWidth = 33;
-            surgesContainer.setStyle("verticalGap", 0);
-            surgesContainer.addChild(_CreateLabel("Surges", 100));
-            mSurgesText = new EditableText(comms);
-            mSurgesText.percentWidth = 100;
-            mSurgesText.setStyle("textAlign", "center");
-            surgesContainer.addChild(mSurgesText);
-            hLayout.addChild(surgesContainer);
-
-            vLayout.addChild(hLayout);
-            return vLayout;
+        /**
+         * Add an object to a particular container with the specified width and height percentages
+         * @param container Container to add the object to
+         * @param object Object to add to the container
+         * @param percentWidth Percent of the container to take up
+         * @param percentHeight Percent of the container to take up
+         */
+        private function _AddObjectToContainer(container:Container, object:UIComponent, percentWidth:Number = 100, percentHeight:Number = 100):void
+        {
+            object.percentWidth = percentWidth;
+            object.percentHeight = percentHeight;
+            container.addChild(object);
         }
 
         /**
@@ -334,7 +348,6 @@
             var label:Text = new Text();
             label.text = text;
             label.percentWidth = percentWidth;
-            label.setStyle("textAlign", "center");
             return label;
         }
 
@@ -365,39 +378,35 @@
          */
         private function _SetupBottomViewBar(comms:IComm):Container
         {
-            var bar:ControlBar = new ControlBar();
-            bar.addChild(_CreateLabel("Adjust"));
-
             mAdjustValue = new NumericStepper();
-            mAdjustValue.maximum = 999;
-            bar.addChild(mAdjustValue);
-
-            var spacer:Spacer = new Spacer();
-            spacer.percentWidth = 100;
-            bar.addChild(spacer);
+            mAdjustValue.maximum = 99;
+            mAdjustValue.width = 50;
 
             var healButton:LinkButton = new LinkButton();
             healButton.setStyle("icon", mHealIcon);
             healButton.width = 20;
             healButton.addEventListener(MouseEvent.CLICK, _HealClicked);
-            bar.addChild(healButton);
 
             var damageButton:LinkButton = new LinkButton();
             damageButton.setStyle("icon", mDamageIcon);
             damageButton.width = 20;
             damageButton.addEventListener(MouseEvent.CLICK, _DamageClicked);
-            bar.addChild(damageButton);
 
             var tempHpButton:LinkButton = new LinkButton();
             tempHpButton.setStyle("icon", mTempHpIcon);
             tempHpButton.width = 20;
             tempHpButton.addEventListener(MouseEvent.CLICK, _TempHpClicked);
-            bar.addChild(tempHpButton);
 
             var surgeButton:Button = new Button();
             surgeButton.width = 58;
             surgeButton.label = "Surge";
             surgeButton.addEventListener(MouseEvent.CLICK, _SurgeClicked);
+
+            var bar:ControlBar = new ControlBar();
+            bar.addChild(mAdjustValue);
+            bar.addChild(healButton);
+            bar.addChild(damageButton);
+            bar.addChild(tempHpButton);
             bar.addChild(surgeButton);
 
             return bar;
@@ -412,8 +421,7 @@
             bar.addChild(_CreateLabel("Name"));
 
             mNameInput = new TextInput();
-            mNameInput.percentWidth = 100;
-            bar.addChild(mNameInput);
+            _AddObjectToContainer(bar, mNameInput);
 
             return bar;
         }
@@ -568,16 +576,6 @@
             sendObj[_GetCommKey(LAST_UPDATE_KEY)] = statusUpdate;
             sendObj[_GetCommKey(LAST_UPDATE_USER_KEY)] = mComms.GetViewingUser().GetName();
             mComms.SubmitDelta(sendObj);
-        }
-
-
-        /**
-         * This Flex obejct has been updated
-         * @param e Event
-         */
-        private function _UpdateComplete(e:Event):void
-        {
-            _SetModeTo(mComms.GetMode());
         }
 
         /**

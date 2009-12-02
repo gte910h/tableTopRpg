@@ -5,17 +5,24 @@
     import com.translator.comms.CommMode;
     import flash.events.Event;
     import flash.events.MouseEvent;
-    import mx.controls.Button;
+    import mx.containers.Canvas;
+    import mx.controls.Image;
+    import mx.controls.LinkButton;
 
     /**
      * Button to switch between Edit and View modes
      */
-    public class ModeChangeButton extends Button
+    public class ModeChangeButton extends LinkButton
     {
         /**
          * Communication layer
          */
         private var mComms:IComm;
+
+        [Embed(source="../../../img/wrench.png")]
+        private var mEditIcon:Class;
+        [Embed(source = "../../../img/magnifier.png")]
+        private var mViewIcon:Class;
 
         /**
          * Constructor
@@ -28,7 +35,7 @@
             addEventListener(Event.ADDED_TO_STAGE, _AddedToStage);
             addEventListener(Event.REMOVED_FROM_STAGE, _RemovedFromStage);
 
-            width = 55;
+            width = 20;
             height = 20;
 
             _SwitchModeTo(mComms.GetMode());
@@ -86,11 +93,11 @@
             switch (mComms.GetMode())
             {
                 case CommMode.EDIT:
-                    label = "View";
+                    this.setStyle("icon", mViewIcon);
                     break;
 
                 case CommMode.VIEW:
-                    label = "Edit";
+                    this.setStyle("icon", mEditIcon);
                     break;
             }
         }
