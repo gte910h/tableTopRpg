@@ -1,6 +1,10 @@
 ﻿package com.widget.Components
 {
+    import com.translator.comms.CommEventModeChange;
+    import com.translator.comms.CommEventStateChange;
+    import com.translator.comms.CommMode;
     import com.translator.comms.IComm;
+    import com.translator.comms.ICommState;
     import flash.events.Event;
     import flash.events.KeyboardEvent;
     import flash.events.MouseEvent;
@@ -96,15 +100,10 @@
 
             _SetupComponents();
 
-            /*
-            listBox.addChild(_CreateNewField("-2 to all defenses (Elan)"));
-            listBox.addChild(_CreateNewField("Cursed by Sangria"));
-            listBox.addChild(_CreateNewField("W W W W W W W W "));
-            listBox.addChild(_CreateNewField("WW W W W W W W W "));
-            listBox.addChild(_CreateNewField("What's up, doc?"));
-            listBox.addChild(_CreateNewField("Hey there, people!"));
-            listBox.addChild(_CreateNewField("Some text here."));
-            */
+            mComms.AddEventModeChange(_EventModeChange);
+            mComms.AddEventStateChange(_EventStateChange);
+            _SetModeTo(mComms.GetMode());
+            _ApplyState(mComms.GetState());
         }
 
         private function _SetupComponents():void
@@ -274,6 +273,92 @@
             // Ejet the item from the list data and the list container
             mListItems.splice(i, 1);
             mList.removeChildAt(i);
+        }
+
+        /**
+         * Send new values for everything through the Comms layer
+         */
+        private function _SendStateUpdate():void
+        {
+            // TODO
+        }
+
+        /**
+         * The state has changed or we're just starting out.  Apply the state to everything.
+         */
+        private function _ApplyState(state:ICommState):void
+        {
+            // TODO
+        }
+
+        /**
+         * Event fired that the mode has changed
+         * @param ev Event that fired
+         */
+        private function _EventModeChange(ev:CommEventModeChange):void
+        {
+            _SetModeTo(ev.Mode);
+
+            // If the new mode is View mode, we should submit the updates we have pending
+            if (CommMode.VIEW == ev.Mode)
+            {
+                _SendStateUpdate();
+            }
+        }
+
+        /**
+         * The comms state has changed
+         */
+        private function _EventStateChange(event:CommEventStateChange):void
+        {
+            _ApplyState(event.State);
+        }
+
+        /**
+         * Set to the given comm mode
+         * @param mode New mode to set to
+         */
+        private function _SetModeTo(mode:String):void
+        {
+            // I hate you, ActionScript.
+            var i:Number;
+            var li:Object;
+            var numItems:Number = mListItems.length;
+
+            switch (mode)
+            {
+                case CommMode.EDIT:
+                {
+                    // Edit mode: Has an Add text box, List moves up to account for it, Remove buttons exist
+                    mInputTextContainer.includeInLayout = true;
+                    mInputTextContainer.visible = true;
+                    mListContainer.height = height - mInputTextContainer.height - 6;
+
+                    for (i = 0 ; i < numItems ; ++i)
+                    {
+                        li = mListItems[i];
+                        li.RemoveButton.visible = true;
+                        li.RemoveButton.includeInLayout = true;
+                    }
+                    break;
+                }
+
+                case CommMode.VIEW:
+                {
+                    // View mode: no Add text box, List takes up full height, Remove buttons go away
+                    mInputTextContainer.includeInLayout = false;
+                    mInputTextContainer.visible = false;
+                    mListContainer.percentHeight = 100;
+
+                    for (i = 0 ; i < numItems ; ++i)
+                    {
+                        li = mListItems[i];
+                        li.RemoveButton.visible = false;
+                        li.RemoveButton.includeInLayout = false;
+                    }
+                    break;
+                }
+            }
         }
 
         /**

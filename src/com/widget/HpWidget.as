@@ -96,6 +96,11 @@
         private var mBottomBarEditMode:Container;
 
         /**
+         * The Text List showing status indicators
+         */
+        private var mStatusList:TextList;
+
+        /**
          * A simple box for the user to input a number
          */
         private var mAdjustValue:NumericStepper;
@@ -165,8 +170,8 @@
             rightVBox.setStyle("verticalGap", 2);
             _AddObjectToContainer(hBox, rightVBox, 30);
 
-            var textList:TextList = new TextList(comms);
-            _AddObjectToContainer(rightVBox, textList, 100, 63);
+            mStatusList = new TextList(comms);
+            _AddObjectToContainer(rightVBox, mStatusList, 100, 63);
 
             mLastUpdateText = new Text();
             mLastUpdateText.setStyle("fontSize", 9);
