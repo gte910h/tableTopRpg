@@ -1,10 +1,13 @@
 ﻿package com.widget.Components
 {
     import com.translator.comms.IComm;
+    import flash.events.Event;
+    import flash.events.KeyboardEvent;
     import flash.events.MouseEvent;
     import mx.containers.Canvas;
     import mx.containers.HBox;
     import mx.containers.VBox;
+    import mx.controls.Button;
     import mx.controls.HRule;
     import mx.controls.LinkButton;
     import mx.controls.Spacer;
@@ -162,6 +165,7 @@
 
             // Add any listeners we care about
             addButton.addEventListener(MouseEvent.CLICK, _AddButtonClick);
+            addTextBox.addEventListener(KeyboardEvent.KEY_DOWN, _AddKeyPressed);
         }
 
         /**
@@ -210,6 +214,9 @@
             return retObject;
         }
 
+        /**
+         * Add whatever text is in the Add box to the list
+         */
         private function _AddCurrentText():void
         {
             var text:String = mInputText.text;
@@ -222,16 +229,51 @@
             mInputText.text = "";
         }
 
+        /**
+         * The Add button was clicked
+         * @param ev Click event
+         */
         private function _AddButtonClick(ev:MouseEvent):void
         {
             _AddCurrentText();
         }
 
+        /**
+         * A key was pressed while on the Input Text thingy
+         * @param ev The keyboard event
+         */
+        private function _AddKeyPressed(ev:KeyboardEvent):void
+        {
+            // 13 is enter
+            if (13 == ev.keyCode)
+            {
+                _AddCurrentText();
+            }
+        }
+
+        /**
+         * A remove button was clicked
+         * @param ev Event for the removal click
+         */
         private function _RemoveButtonClick(ev:MouseEvent):void
         {
-            var button = ev.target;
+            // We don't need that event listener anymore
+            var button:Button = Button(ev.target);
+            button.removeEventListener(MouseEvent.CLICK, _RemoveButtonClick);
+
+            // Find the index of the list item we're talking about here
             var numItems:Number = mListItems.length;
-            //for (var
+            for (var i:Number = 0 ; i < numItems ; ++i)
+            {
+                if (mListItems[i].RemoveButton == button)
+                {
+                    break;
+                }
+            }
+
+            // Ejet the item from the list data and the list container
+            mListItems.splice(i, 1);
+            mList.removeChildAt(i);
         }
 
         /**
