@@ -25,6 +25,7 @@
     import mx.controls.TextInput;
     import mx.controls.VRule;
     import mx.core.Container;
+    import mx.core.ScrollPolicy;
     import mx.core.UIComponent;
     import mx.events.FlexEvent;
 
@@ -153,12 +154,12 @@
 
             // These bottom bar things need to be on top of each other
             var bottomHBox:HBox = new HBox();
+            bottomHBox.setStyle("horizontalGap", 0);
             var bottomCanvas:Canvas = new Canvas();
             _AddObjectToContainer(bottomCanvas, mBottomBarViewMode);
             _AddObjectToContainer(bottomCanvas, mBottomBarEditMode);
             _AddObjectToContainer(bottomHBox, bottomCanvas, 92); // Leaving some room for the edit button
             _AddObjectToContainer(leftVBox, bottomHBox);
-
 
             var rightVBox:VBox = new VBox();
             rightVBox.setStyle("verticalGap", 2);
