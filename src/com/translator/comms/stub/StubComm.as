@@ -62,8 +62,10 @@
             {
                 for (var i:String in delta)
                 {
-                    trace("[" + i + "] => " + delta[i]);
-                    mState.SetValue(i, delta[i]);
+                    var newValue:* = delta[i];
+                    var safeValue:String = _GetSafeString(newValue);
+                    trace("[" + i + "] => " + safeValue);
+                    mState.SetValue(i, safeValue);
                 }
                 _DispatchStateChange(mState);
             }

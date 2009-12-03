@@ -37,6 +37,18 @@
         }
 
         /**
+         * Retrieve an Array value from the synchronized state.
+         *
+         * @param key specified key to retrieve.
+         * @param defaultVal Optional default value if nonexistent (optional).
+         * @return Number for the specified key or the default if not found.
+         */
+        public function GetArrayValue(key:String, defaultVal:Array = null):Array
+        {
+            return mStateMap[key] ? _GetArrayFromString(mStateMap[key]) : defaultVal;
+        }
+
+        /**
          * Retrieve the valid keys for the synchronized state.
          * @return set of keys
          */
@@ -75,6 +87,36 @@
                 }
             }
             return true;
+        }
+
+
+
+
+        // TODO this is all messed up
+        /**
+         * Return an array given a string that went through
+         * @param in
+         * @return
+         */
+        private function _GetArrayFromString(input:String):Array
+        {
+            var ret:Array = input.split("\t");
+            var numItems:Number = ret.length;
+            for (var i:Number = 0 ; i < numItems ; ++i)
+            {
+                // Pull out those keys we prepended
+                var sub:String = ret[i].substr(1);
+                switch(ret[i].charAt(0))
+                {
+                    case "n":
+                        ret[i] = Number(sub)
+                        break;
+
+                    case "s":
+                        ret[i] = sub;
+                }
+            }
+            return ret;
         }
     }
 }

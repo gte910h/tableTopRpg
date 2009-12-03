@@ -7,7 +7,7 @@
          *
          * @param key specified key to retrieve.
          * @param defaultVal Optional default value if nonexistent (optional).
-         * @return String for the specified key or null if not found.
+         * @return String for the specified key or the default if not found.
          */
         function GetStringValue(key:String, defaultVal:String = null):String;
 
@@ -16,9 +16,18 @@
          *
          * @param key specified key to retrieve.
          * @param defaultVal Optional default value if nonexistent (optional).
-         * @return Number for the specified key or -1 if not found.
+         * @return Number for the specified key or the default if not found.
          */
         function GetNumberValue(key:String, defaultVal:Number = -1):Number;
+
+        /**
+         * Retrieve an Array value from the synchronized state.
+         *
+         * @param key specified key to retrieve.
+         * @param defaultVal Optional default value if nonexistent (optional).
+         * @return Number for the specified key or the default if not found.
+         */
+        function GetArrayValue(key:String, defaultVal:Array = null):Array;
 
         /**
          * Retrieve the valid keys for the synchronized state.

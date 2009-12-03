@@ -51,6 +51,18 @@
         }
 
         /**
+         * Retrieve an Array value from the synchronized state.
+         *
+         * @param key specified key to retrieve.
+         * @param defaultVal Optional default value if nonexistent (optional).
+         * @return Number for the specified key or the default if not found.
+         */
+        public function GetArrayValue(key:String, defaultVal:Array = null):Array
+        {
+            return defaultVal;
+        }
+
+        /**
          * Retrieve the valid keys for the synchronized state.
          * @return set of keys
          */
