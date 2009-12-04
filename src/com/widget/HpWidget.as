@@ -170,6 +170,7 @@
             rightVBox.setStyle("verticalGap", 2);
             _AddObjectToContainer(hBox, rightVBox, 30);
 
+            rightVBox.addChild(_CreateLabel("Status:"));
             mStatusList = new TextList(comms);
             _AddObjectToContainer(rightVBox, mStatusList, 100, 63);
 

@@ -3,6 +3,7 @@
     import com.translator.comms.IComm;
     import com.translator.comms.stub.StubComm;
     import com.translator.comms.wave.WaveComm;
+    import flash.display.Sprite;
     import flash.external.ExternalInterface;
 
     /**
@@ -10,7 +11,12 @@
      */
     public class CommFactory
     {
-        public static function MakeComm():IComm
+        /**
+         * Create a Comm
+         * @param sprite A Sprite, in case anything needs an onEnterFrame for anythin
+         * @return A new IComm
+         */
+        public static function MakeComm(sprite:Sprite):IComm
         {
             if (ExternalInterface.available)
             {
@@ -18,7 +24,7 @@
             }
             else
             {
-                return new StubComm();
+                return new StubComm(sprite);
             }
         }
     }

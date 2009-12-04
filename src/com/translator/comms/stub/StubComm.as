@@ -24,14 +24,21 @@
         private var mCurrentMode:String;
 
         /**
-         * Stubbed out implementation of IComm, for when we're not actually in a Wave
+         * Sprite on which we will set on onEnterFrame for async stuff
          */
-        public function StubComm()
+        private var mSprite:Sprite
+
+        /**
+         * Stubbed out implementation of IComm, for when we're not actually in a Wave
+         * @param sprite For an onEnterFrame
+         */
+        public function StubComm(sprite:Sprite)
         {
             super();
 
-            var fakedInitialState:Object = null;
+            mSprite = sprite;
 
+            var fakedInitialState:Object = null; // For testing
             mState = new StubCommState(fakedInitialState);
             mCurrentMode = CommMode.VIEW;
 
@@ -74,8 +81,35 @@
                     trace("[" + i + "] => " + newValue);
                     mState.SetValue(i, newValue);
                 }
-                _DispatchStateChange(mState);
+                _SetOnEnterFrame();
             }
+        }
+
+        /**
+         * Set an onEnterFrame for dispatching state
+         */
+        private function _SetOnEnterFrame():void
+        {
+            _ClearOnEnterFrame();
+            mSprite.addEventListener(Event.ENTER_FRAME, _OnEnterFrame);
+        }
+
+        /**
+         * Clear the onEnterFrame for dispatching state
+         */
+        private function _ClearOnEnterFrame():void
+        {
+            mSprite.removeEventListener(Event.ENTER_FRAME, _OnEnterFrame);
+        }
+
+        /**
+         * Called after we change state so we can delay dispatching change events
+         * @param ev Event
+         */
+        private function _OnEnterFrame(ev:Event):void
+        {
+            _ClearOnEnterFrame();
+            _DispatchStateChange(mState);
         }
 
         /**

@@ -22,7 +22,7 @@ private var mComms:IComm;
  */
 public function Startup():void
 {
-    mComms = CommFactory.MakeComm();
+    mComms = CommFactory.MakeComm(this);
 
     var hpWidget:HpWidget = new HpWidget(mComms);
     hpWidget.percentWidth = 100;

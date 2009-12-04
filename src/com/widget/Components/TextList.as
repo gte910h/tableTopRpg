@@ -27,6 +27,11 @@
     public class TextList extends Canvas
     {
         /**
+         * Key we will use for communicating the whole list
+         */
+        private static const LIST_TEXT_KEY:String = "text";
+
+        /**
          * Communication layer
          */
         private var mComms:IComm;
@@ -93,10 +98,9 @@
             mComms = comms;
 
             // This prefix and instance stuff allows us to have multiple copies of this widget in 1 gadget
-            mCommPrefix = "hp" + sInstances;
+            mCommPrefix = "tl" + sInstances;
             sInstances++;
 
-            /*
             mListItems = new Array();
 
             _SetupComponents();
@@ -105,7 +109,6 @@
             mComms.AddEventStateChange(_EventStateChange);
             _SetModeTo(mComms.GetMode());
             _ApplyState(mComms.GetState());
-            */
         }
 
         private function _SetupComponents():void
@@ -223,11 +226,20 @@
             var text:String = mInputText.text;
             if ("" != text)
             {
-                var newListItem:Object = _CreateNewListItem(text);
-                mListItems.push(newListItem);
-                mList.addChild(newListItem.Container);
+                _AddText(text);
             }
             mInputText.text = "";
+        }
+
+        /**
+         * Add the given text to our tracking
+         * @param text The new text
+         */
+        private function _AddText(text:String):void
+        {
+            var newListItem:Object = _CreateNewListItem(text);
+            mListItems.push(newListItem);
+            mList.addChild(newListItem.Container);
         }
 
         /**
@@ -260,7 +272,6 @@
         {
             // We don't need that event listener anymore
             var button:Button = Button(ev.target);
-            button.removeEventListener(MouseEvent.CLICK, _RemoveButtonClick);
 
             // Find the index of the list item we're talking about here
             var numItems:Number = mListItems.length;
@@ -272,9 +283,19 @@
                 }
             }
 
-            // Ejet the item from the list data and the list container
-            mListItems.splice(i, 1);
-            mList.removeChildAt(i);
+            // Eject the item from the list data and the list container
+            _RemoveItemAt(i);
+        }
+
+        /**
+         * Remove the item at the given index
+         * @param index Index to remove
+         */
+        private function _RemoveItemAt(index:Number):void
+        {
+            mListItems[index].RemoveButton.removeEventListener(MouseEvent.CLICK, _RemoveButtonClick);
+            mListItems.splice(index, 1);
+            mList.removeChildAt(index);
         }
 
         /**
@@ -282,7 +303,16 @@
          */
         private function _SendStateUpdate():void
         {
-            // TODO
+            var textList:Array = new Array();
+            var numItems:Number = mListItems.length;
+            for (var i:Number = 0 ; i < numItems ; ++i)
+            {
+                textList[i] = mListItems[i].Text;
+            }
+
+            var delta:Object = new Object();
+            delta[_GetCommKey(LIST_TEXT_KEY)] = textList;
+            mComms.SubmitDelta(delta);
         }
 
         /**
@@ -290,7 +320,19 @@
          */
         private function _ApplyState(state:ICommState):void
         {
-            // TODO
+            var i:Number;
+            var numItems:Number = mListItems.length;
+            for (i = numItems-1 ; i >= 0  ; --i)
+            {
+                _RemoveItemAt(i);
+            }
+
+            var newItems:Array = state.GetValue(_GetCommKey(LIST_TEXT_KEY), []);
+            var numNewItems:Number = newItems.length;
+            for (i = 0 ; i < numNewItems ; ++i)
+            {
+                _AddText(newItems[i]);
+            }
         }
 
         /**
