@@ -107,7 +107,6 @@
 
             mComms.AddEventModeChange(_EventModeChange);
             mComms.AddEventStateChange(_EventStateChange);
-            _SetModeTo(mComms.GetMode());
             _ApplyState(mComms.GetState());
         }
 
@@ -333,6 +332,8 @@
             {
                 _AddText(newItems[i]);
             }
+
+            _SetModeTo(mComms.GetMode());
         }
 
         /**
