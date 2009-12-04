@@ -5,6 +5,7 @@
     import com.translator.comms.BaseComm;
     import com.translator.comms.CommEventStateChange;
     import com.translator.comms.CommMode;
+    import com.translator.comms.CommStateUtil;
     import com.translator.comms.IComm;
     import com.translator.comms.ICommState;
     import com.translator.comms.IUser;
@@ -71,7 +72,8 @@
 
             if (shouldSubmit)
             {
-                mWave.submitDelta(delta);
+                var packed:Object = CommStateUtil.PackObject(delta);
+                mWave.submitDelta(packed);
             }
         }
 
@@ -82,20 +84,23 @@
         {
             mWaveState = new WaveCommState(ws);
 
-            _DispatchStateChange(mWaveState);
-
-            // WaveComm ITSELF is also storing mode info about the mode it's in.
-            // Not dispatching an event here because it messes with the StateChange event stuff
-            // This is technically wrong as far as state usually goes, but the problem is if
-            // you try to submit state in response to the Mode changing you're going to be
-            // very disappointed.  This will get fixed, in theory, when the lib actually does
-            // modes rather than me having to do it.
-            if (null == mTempWaveMode)
+            if (!CommStateUtil.UpdateVersionIfNecessary(this))
             {
-                var waveMode:String = mWaveState.GetStringValue(WAVE_MODE_KEY, CommMode.EDIT);
-                if (null != waveMode)
+                _DispatchStateChange(mWaveState);
+
+                // WaveComm ITSELF is also storing mode info about the mode it's in.
+                // Not dispatching an event here because it messes with the StateChange event stuff
+                // This is technically wrong as far as state usually goes, but the problem is if
+                // you try to submit state in response to the Mode changing you're going to be
+                // very disappointed.  This will get fixed, in theory, when the lib actually does
+                // modes rather than me having to do it.
+                if (null == mTempWaveMode)
                 {
-                    mTempWaveMode = waveMode;
+                    var waveMode:String = mWaveState.GetValue(WAVE_MODE_KEY, CommMode.EDIT);
+                    if (null != waveMode)
+                    {
+                        mTempWaveMode = waveMode;
+                    }
                 }
             }
         }

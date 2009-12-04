@@ -1,5 +1,6 @@
 ﻿package com.translator.comms.stub
 {
+    import com.translator.comms.CommStateUtil;
     import com.translator.comms.ICommState;
 
     /**
@@ -10,42 +11,54 @@
         /**
          * <key,value> map to store the data.  State is basically a data structure of key/value map.
          */
-        private var mStateMap:Object = new Object();
+        private var mStateMap:Object;
 
         /**
-         * Retrieve a String value from the synchronized state.
-         *
-         * @param key specified key to retrieve.
-         * @param defaultVal Optional default value if nonexistent (optional).
-         * @return String for the specified key or null if not found.
+         * Constructor
+         * @param fakedInitialStateMap Optional initial state map to fake there already being data in the system
          */
-        public function GetStringValue(key:String, defaultVal:String = null):String
+        public function StubCommState(fakedInitialStateMap:Object=null):void
         {
-            return mStateMap[key] ? mStateMap[key] : defaultVal;
+            if (null != fakedInitialStateMap)
+            {
+                mStateMap = fakedInitialStateMap;
+            }
+            else
+            {
+                mStateMap = new Object();
+            }
         }
 
         /**
-         * Retrieve a Number value from the synchronized state.
+         * Retrieve a value from the synchronized state.  It's typed as whatever
+         * it was when you submitted it in the first place.
          *
          * @param key specified key to retrieve.
-         * @param defaultVal Optional default value if nonexistent (optional).
-         * @return Number for the specified key or -1 if not found.
+         * @param defaultVal Default value if nonexistent.
+         * @return Value for the specified key or the default if not found.
          */
-        public function GetNumberValue(key:String, defaultVal:Number = -1):Number
+        public function GetValue(key:String, defaultVal:*):*
         {
-            return mStateMap[key] ? mStateMap[key] : defaultVal;
+            var stateVal:String = mStateMap[key];
+            if (null != stateVal)
+            {
+                return CommStateUtil.UnpackValue(stateVal);
+            }
+            else
+            {
+                return defaultVal;
+            }
         }
 
         /**
-         * Retrieve an Array value from the synchronized state.
-         *
-         * @param key specified key to retrieve.
-         * @param defaultVal Optional default value if nonexistent (optional).
-         * @return Number for the specified key or the default if not found.
+         * Retrieve raw data given a key.  You should not be calling this unless you
+         * really need to get at unsafe values as they were stored in data objects.
+         * @param key Key of the value
+         * @return Raw data
          */
-        public function GetArrayValue(key:String, defaultVal:Array = null):Array
+        public function GetRawData(key:String):String
         {
-            return mStateMap[key] ? _GetArrayFromString(mStateMap[key]) : defaultVal;
+            return mStateMap[key];
         }
 
         /**
@@ -79,44 +92,15 @@
          */
         public function IsSameState(delta:Object):Boolean
         {
-            for (var i:String in delta)
+            var packed:Object = CommStateUtil.PackObject(delta);
+            for (var i:String in packed)
             {
-                if (String(delta[i]) != String(mStateMap[i]))
+                if (packed[i] != mStateMap[i])
                 {
                     return false;
                 }
             }
             return true;
-        }
-
-
-
-
-        // TODO this is all messed up
-        /**
-         * Return an array given a string that went through
-         * @param in
-         * @return
-         */
-        private function _GetArrayFromString(input:String):Array
-        {
-            var ret:Array = input.split("\t");
-            var numItems:Number = ret.length;
-            for (var i:Number = 0 ; i < numItems ; ++i)
-            {
-                // Pull out those keys we prepended
-                var sub:String = ret[i].substr(1);
-                switch(ret[i].charAt(0))
-                {
-                    case "n":
-                        ret[i] = Number(sub)
-                        break;
-
-                    case "s":
-                        ret[i] = sub;
-                }
-            }
-            return ret;
         }
     }
 }

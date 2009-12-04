@@ -3,37 +3,28 @@
     public interface ICommState
     {
         /**
-         * Retrieve a String value from the synchronized state.
+         * Retrieve a value from the synchronized state.  It's typed as whatever
+         * it was when you submitted it in the first place.
          *
          * @param key specified key to retrieve.
-         * @param defaultVal Optional default value if nonexistent (optional).
-         * @return String for the specified key or the default if not found.
+         * @param defaultVal Default value if nonexistent.
+         * @return Value for the specified key or the default if not found.
          */
-        function GetStringValue(key:String, defaultVal:String = null):String;
-
-        /**
-         * Retrieve a Number value from the synchronized state.
-         *
-         * @param key specified key to retrieve.
-         * @param defaultVal Optional default value if nonexistent (optional).
-         * @return Number for the specified key or the default if not found.
-         */
-        function GetNumberValue(key:String, defaultVal:Number = -1):Number;
-
-        /**
-         * Retrieve an Array value from the synchronized state.
-         *
-         * @param key specified key to retrieve.
-         * @param defaultVal Optional default value if nonexistent (optional).
-         * @return Number for the specified key or the default if not found.
-         */
-        function GetArrayValue(key:String, defaultVal:Array = null):Array;
+        function GetValue(key:String, defaultVal:*):*;
 
         /**
          * Retrieve the valid keys for the synchronized state.
          * @return set of keys
          */
         function GetKeys():Array;
+
+        /**
+         * Retrieve raw data given a key.  You should not be calling this unless you
+         * really need to get at unsafe values as they were stored in data objects.
+         * @param key Key of the value
+         * @return Raw data
+         */
+        function GetRawData(key:String):String;
 
         /**
          * Return whether the given state object is strictly contained within the current state object

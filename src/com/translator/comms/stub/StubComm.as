@@ -3,6 +3,7 @@
     import com.translator.comms.BaseComm;
     import com.translator.comms.CommEventStateChange;
     import com.translator.comms.CommMode;
+    import com.translator.comms.CommStateUtil;
     import com.translator.comms.IComm;
     import com.translator.comms.ICommState;
     import com.translator.comms.IUser;
@@ -28,8 +29,13 @@
         public function StubComm()
         {
             super();
-            mState = new StubCommState();
+
+            var fakedInitialState:Object = null;
+
+            mState = new StubCommState(fakedInitialState);
             mCurrentMode = CommMode.VIEW;
+
+            CommStateUtil.UpdateVersionIfNecessary(this);
         }
 
         /**
@@ -60,12 +66,13 @@
 
             if (!mState.IsSameState(delta))
             {
-                for (var i:String in delta)
+                var packed:Object = CommStateUtil.PackObject(delta);
+
+                for (var i:String in packed)
                 {
-                    var newValue:* = delta[i];
-                    var safeValue:String = _GetSafeString(newValue);
-                    trace("[" + i + "] => " + safeValue);
-                    mState.SetValue(i, safeValue);
+                    var newValue:String = packed[i];
+                    trace("[" + i + "] => " + newValue);
+                    mState.SetValue(i, newValue);
                 }
                 _DispatchStateChange(mState);
             }

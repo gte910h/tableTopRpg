@@ -191,15 +191,15 @@
          */
         private function _ApplyState(state:ICommState):void
         {
-            var currentHp:Number = state.GetNumberValue(_GetCommKey(CURRENT_HP_KEY), 25);
-            var maxHp:Number = state.GetNumberValue(_GetCommKey(MAX_HP_KEY), 25);
-            var tempHp:Number = state.GetNumberValue(_GetCommKey(TEMP_HP_KEY), 0);
+            var currentHp:Number = state.GetValue(_GetCommKey(CURRENT_HP_KEY), 25);
+            var maxHp:Number = state.GetValue(_GetCommKey(MAX_HP_KEY), 25);
+            var tempHp:Number = state.GetValue(_GetCommKey(TEMP_HP_KEY), 0);
 
             mCurrentHpText.text = currentHp.toString();
             mMaxHpText.text = maxHp.toString();
             mTempHpText.text = tempHp.toString();
-            mSurgesText.text = state.GetNumberValue(_GetCommKey(NUM_SURGES_KEY), 5).toString();
-            mNameInput.text = state.GetStringValue(_GetCommKey(NAME_KEY), "John Smith");
+            mSurgesText.text = state.GetValue(_GetCommKey(NUM_SURGES_KEY), 5).toString();
+            mNameInput.text = state.GetValue(_GetCommKey(NAME_KEY), "John Smith");
             mHpContainerPanel.title = mNameInput.text;
 
             // Change current HP color depending on status
@@ -227,8 +227,8 @@
             }
 
             // Show a nice update of who changed what to do what
-            var lastUpdate:String = state.GetStringValue(_GetCommKey(LAST_UPDATE_KEY), "");
-            var lastUpdateUser:String = state.GetStringValue(_GetCommKey(LAST_UPDATE_USER_KEY), "");
+            var lastUpdate:String = state.GetValue(_GetCommKey(LAST_UPDATE_KEY), "");
+            var lastUpdateUser:String = state.GetValue(_GetCommKey(LAST_UPDATE_USER_KEY), "");
             var fullUpdateText:String = lastUpdate;
             if ("" != lastUpdateUser)
             {

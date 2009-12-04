@@ -71,7 +71,7 @@ public function Startup():void
 private function _Increment(evt:MouseEvent):void
 {
     trace("Increment");
-    var strCount:String = mComms.GetState().GetStringValue("count");
+    var strCount:String = mComms.GetState().GetValue("count", -1);
     var numCount:Number = 0;
     if (strCount != null)
     {

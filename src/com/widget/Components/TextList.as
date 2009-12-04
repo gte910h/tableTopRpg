@@ -96,6 +96,7 @@
             mCommPrefix = "hp" + sInstances;
             sInstances++;
 
+            /*
             mListItems = new Array();
 
             _SetupComponents();
@@ -104,6 +105,7 @@
             mComms.AddEventStateChange(_EventStateChange);
             _SetModeTo(mComms.GetMode());
             _ApplyState(mComms.GetState());
+            */
         }
 
         private function _SetupComponents():void

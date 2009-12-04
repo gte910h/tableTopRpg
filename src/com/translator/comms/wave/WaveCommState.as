@@ -1,5 +1,6 @@
 ﻿package com.translator.comms.wave
 {
+    import com.translator.comms.CommStateUtil;
     import com.translator.comms.ICommState;
     import com.nextgenapp.wave.gadget.WaveState;
 
@@ -21,45 +22,40 @@
             mState = state;
         }
 
-
         /**
-         * Retrieve a String value from the synchronized state.
+         * Retrieve a value from the synchronized state.  It's typed as whatever
+         * it was when you submitted it in the first place.
          *
          * @param key specified key to retrieve.
-         * @param defaultVal Optional default value if nonexistent (optional).
-         * @return String for the specified key or null if not found.
+         * @param defaultVal Default value if nonexistent.
+         * @return Value for the specified key or the default if not found.
          */
-        public function GetStringValue(key:String, defaultVal:String = null):String
+        public function GetValue(key:String, defaultVal:*):*
         {
             if (null != mState)
             {
-                return mState.getStringValue(key, defaultVal);
+                var stateVal:String = mState.getStringValue(key);
+                if (null != stateVal)
+                {
+                    return CommStateUtil.UnpackValue(stateVal);
+                }
             }
             return defaultVal;
         }
 
         /**
-         * Retrieve a Number value from the synchronized state.
-         *
-         * @param key specified key to retrieve.
-         * @param defaultVal Optional default value if nonexistent (optional).
-         * @return Number for the specified key or -1 if not found.
+         * Retrieve raw data given a key.  You should not be calling this unless you
+         * really need to get at unsafe values as they were stored in data objects.
+         * @param key Key of the value
+         * @return Raw data
          */
-        public function GetNumberValue(key:String, defaultVal:Number = -1):Number
+        public function GetRawData(key:String):String
         {
-            return parseInt(GetStringValue(key, defaultVal.toString()));
-        }
-
-        /**
-         * Retrieve an Array value from the synchronized state.
-         *
-         * @param key specified key to retrieve.
-         * @param defaultVal Optional default value if nonexistent (optional).
-         * @return Number for the specified key or the default if not found.
-         */
-        public function GetArrayValue(key:String, defaultVal:Array = null):Array
-        {
-            return defaultVal;
+            if (null != mState)
+            {
+                return mState.getStringValue(key);
+            }
+            return null;
         }
 
         /**
@@ -82,14 +78,19 @@
          */
         public function IsSameState(delta:Object):Boolean
         {
-            for (var i:String in delta)
+            if (null != mState)
             {
-                if (String(delta[i]) != String(mState.getStringValue(i)))
+                var packed:Object = CommStateUtil.PackObject(delta);
+                for (var i:String in packed)
                 {
-                    return false;
+                    if (packed[i] != mState.getStringValue(i))
+                    {
+                        return false;
+                    }
                 }
+                return true;
             }
-            return true;
+            return false;
         }
     }
 }
