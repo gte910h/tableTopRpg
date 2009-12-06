@@ -12,11 +12,18 @@
         private var mEventDispatcher:EventDispatcher;
 
         /**
+         * Listeners waiting for the Comm to be ready
+         */
+        private var mReadyListeners:/*Function*/Array;
+
+
+        /**
          * Constructor
          */
         public function BaseComm()
         {
             mEventDispatcher = new EventDispatcher();
+            mReadyListeners = new Array();
         }
 
         /**
@@ -71,6 +78,35 @@
         protected function _DispatchModeChange(newMode:String):void
         {
             mEventDispatcher.dispatchEvent(new CommEventModeChange(newMode));
+        }
+
+        /**
+         * Specify a function that will be called when the Comm is fully ready.
+         * May be called immediately if the thing is immediately ready.
+         * @param callback Function to call when ready.  Will pass the IComm object.
+         */
+        public function CallWhenReady(callback:Function):void
+        {
+            mReadyListeners.push(callback);
+        }
+
+        /**
+         * Dispatch a call (not actually an event) to all listeners waiting to
+         * see if the Comms is ready to go.
+         */
+        protected function _DispatchReady():void
+        {
+            if (0 < mReadyListeners.length)
+            {
+                var listeners:/*Function*/Array = mReadyListeners;
+                mReadyListeners = new Array();
+
+                var numListeners:Number = listeners.length;
+                for (var i:Number = 0 ; i < numListeners ; ++i)
+                {
+                    listeners[i](this);
+                }
+            }
         }
     }
 }

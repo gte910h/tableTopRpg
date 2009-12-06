@@ -33,6 +33,12 @@ private var mMap:TileMap;
 
 public function Startup():void
 {
+    CommFactory.MakeComm(this, _CommsReady);
+}
+
+private function _CommsReady(comms:IComm):void
+{
+    mComms = comms;
     mLoader = new Loader();
 
     //
@@ -53,13 +59,8 @@ public function Startup():void
     mMap.height = 300;
     mMap.SetMap(asciimap);
 
-    if (mComms == null)
-    {
-        mComms = CommFactory.MakeComm();
-    }
+
     mComms.AddEventStateChange(_StateCallback);
-
-
 
     // Allow us to change modes
     var modeChangeButton:ModeChangeButton = new ModeChangeButton(mComms);

@@ -30,6 +30,23 @@
         {
             return mParticipant.getDisplayName();
         }
-    }
 
+         /**
+          * Return whether this user is the same as another user
+          * @param another The other user
+          * @return True if they are the same, false if not
+          */
+         public function IsSameAs(another:IUser):Boolean
+         {
+             if (another is WaveUser)
+             {
+                var otherWaveUser:WaveUser = (another as WaveUser);
+                return otherWaveUser.mParticipant.id == this.mParticipant.id;
+             }
+             else
+             {
+                 return false;
+             }
+         }
+    }
 }

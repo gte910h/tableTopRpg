@@ -13,19 +13,22 @@
     {
         /**
          * Create a Comm
-         * @param sprite A Sprite, in case anything needs an onEnterFrame for anythin
+         * @param sprite A Sprite, in case anything needs an onEnterFrame for anything
+         * @param callWhenReady Function to call when the comms are ready to go.  Will pass the comms.
          * @return A new IComm
          */
-        public static function MakeComm(sprite:Sprite):IComm
+        public static function MakeComm(sprite:Sprite, callWhenReady:Function):void
         {
+            var comms:IComm;
             if (ExternalInterface.available)
             {
-                return new WaveComm();
+                comms = new WaveComm(sprite);
             }
             else
             {
-                return new StubComm(sprite);
+                comms = new StubComm(sprite);
             }
+            comms.CallWhenReady(callWhenReady);
         }
     }
 }

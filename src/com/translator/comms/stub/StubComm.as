@@ -26,7 +26,7 @@
         /**
          * Sprite on which we will set on onEnterFrame for async stuff
          */
-        private var mSprite:Sprite
+        private var mSprite:Sprite;
 
         /**
          * Stubbed out implementation of IComm, for when we're not actually in a Wave
@@ -42,7 +42,10 @@
             mState = new StubCommState(fakedInitialState);
             mCurrentMode = CommMode.VIEW;
 
-            CommStateUtil.UpdateVersionIfNecessary(this);
+            if (!CommStateUtil.UpdateVersionIfNecessary(this, mState))
+            {
+                _DispatchReady();
+            }
         }
 
         /**
@@ -110,6 +113,7 @@
         {
             _ClearOnEnterFrame();
             _DispatchStateChange(mState);
+            _DispatchReady();
         }
 
         /**
@@ -132,6 +136,24 @@
         public function GetViewingUser():IUser
         {
             return new StubUser("<your longish name here>");
+        }
+
+        /**
+         * Get the user who originally started this gadget
+         * @return The host user
+         */
+        public function GetHostUser():IUser
+        {
+            return new StubUser("<your longish name here>");
+        }
+
+        /**
+         * Return whether the Viewer and the Host are the same user
+         * @return
+         */
+        public function IsViewerHost():Boolean
+        {
+            return (GetHostUser().IsSameAs(GetViewingUser()));
         }
     }
 }

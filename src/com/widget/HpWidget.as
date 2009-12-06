@@ -16,6 +16,7 @@
     import mx.containers.Panel;
     import mx.containers.VBox;
     import mx.controls.Button;
+    import mx.controls.CheckBox;
     import mx.controls.HRule;
     import mx.controls.Label;
     import mx.controls.LinkButton;
@@ -84,6 +85,21 @@
          * Text for whatever update happened last
          */
         private var mLastUpdateText:Text;
+
+        /**
+         * Thing containing the LastUpdateText
+         */
+        private var mLastUpdateContainer:Container;
+
+        /**
+         * Container holding various options
+         */
+        private var mOptionsContainer:Container;
+
+        /**
+         * Checkbox determining whether Dm mode is set or not
+         */
+        private var mDmModeCheckbox:CheckBox;
 
         /**
          * Control bar across the bottom when in View mode
@@ -172,13 +188,37 @@
 
             rightVBox.addChild(_CreateLabel("Status:"));
             mStatusList = new TextList(comms);
-            _AddObjectToContainer(rightVBox, mStatusList, 100, 63);
+            _AddObjectToContainer(rightVBox, mStatusList, 100, 68);
+
+
+            mDmModeCheckbox = new CheckBox();
+
+            var dmModeContainer:Container = new HBox();
+            dmModeContainer.addChild(mDmModeCheckbox);
+            dmModeContainer.addChild(_CreateLabel("DM Mode"));
+
+            dmModeContainer.enabled = false;
+
+            mOptionsContainer = new VBox();
+            mOptionsContainer.addChild(dmModeContainer);
+
+            mLastUpdateContainer = new Canvas();
+            mLastUpdateContainer.horizontalScrollPolicy = ScrollPolicy.OFF;
+            mLastUpdateContainer.verticalScrollPolicy = ScrollPolicy.AUTO;
 
             mLastUpdateText = new Text();
             mLastUpdateText.setStyle("fontSize", 9);
-            mLastUpdateText.setStyle("textAlign", "right");
-            _AddObjectToContainer(rightVBox, mLastUpdateText, 100, 37);
+            mLastUpdateText.setStyle("textAlign", "left");
+            mLastUpdateText.percentWidth = 90;
+            mLastUpdateContainer.addChild(mLastUpdateText);
 
+            var optionsAndUpdateArea:Canvas = new Canvas();
+            optionsAndUpdateArea.horizontalScrollPolicy = ScrollPolicy.OFF;
+            optionsAndUpdateArea.verticalScrollPolicy = ScrollPolicy.OFF;
+            _AddObjectToContainer(optionsAndUpdateArea, mLastUpdateContainer);
+            _AddObjectToContainer(optionsAndUpdateArea, mOptionsContainer);
+
+            _AddObjectToContainer(rightVBox, optionsAndUpdateArea, 100, 32);
 
             mComms.AddEventModeChange(_EventModeChange);
             mComms.AddEventStateChange(_EventStateChange);
@@ -632,13 +672,15 @@
                 case CommMode.EDIT:
                     mBottomBarViewMode.visible = false;
                     mBottomBarEditMode.visible = true;
-                    mLastUpdateText.visible = false;
+                    mLastUpdateContainer.visible = false;
+                    mOptionsContainer.visible = true;
                     break;
 
                 case CommMode.VIEW:
                     mBottomBarViewMode.visible = true;
                     mBottomBarEditMode.visible = false;
-                    mLastUpdateText.visible = true;
+                    mLastUpdateContainer.visible = true;
+                    mOptionsContainer.visible = false;
                     break;
             }
         }

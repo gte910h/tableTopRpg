@@ -29,6 +29,23 @@
         {
             return mUserName;
         }
-    }
 
+         /**
+          * Return whether this user is the same as another user
+          * @param another The other user
+          * @return True if they are the same, false if not
+          */
+         public function IsSameAs(another:IUser):Boolean
+         {
+             if (another is StubUser)
+             {
+                var otherStubUser:StubUser = (another as StubUser);
+                return otherStubUser.mUserName == this.mUserName;
+             }
+             else
+             {
+                 return false;
+             }
+         }
+    }
 }

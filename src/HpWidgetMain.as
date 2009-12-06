@@ -22,7 +22,15 @@ private var mComms:IComm;
  */
 public function Startup():void
 {
-    mComms = CommFactory.MakeComm(this);
+    CommFactory.MakeComm(this, _CommsReady);
+}
+
+/**
+ * Called when the Comm is ready to go
+ */
+private function _CommsReady(comms:IComm):void
+{
+    mComms = comms;
 
     var hpWidget:HpWidget = new HpWidget(mComms);
     hpWidget.percentWidth = 100;

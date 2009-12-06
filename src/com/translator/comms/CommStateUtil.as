@@ -96,6 +96,12 @@
                         }
                     }
 
+                    case "booleanzzz":
+                    {
+                        var asBoolean:Boolean = (input as Boolean);
+                        return "b" + input.toString();
+                    }
+
                     default: throw ("Unable to Pack value of type \"" + inputType + "\"");
                 }
             }
@@ -116,6 +122,7 @@
                 case "s":   return theRest;
                 case "f":   return parseFloat(theRest);
                 case "i":   return parseInt(theRest);
+                case "b":   return Boolean(theRest);
                 case "a":
                 {
                     var arrayVals:String = theRest.substr(1, theRest.length - 2);
@@ -243,15 +250,15 @@
         /**
          * Ask the util to update to the latest state if necessary
          * @param comms Comms object to update
+         * @param state The comm state
          * @return True if an update was necessary and has been sent, false if not
          */
-        public static function UpdateVersionIfNecessary(comms:IComm):Boolean
+        public static function UpdateVersionIfNecessary(comms:IComm, state:ICommState):Boolean
         {
-            var state:ICommState = comms.GetState();
             var version:Number = state.GetValue(COMM_VERSION_KEY, 0);
             if (version < LATEST_VERSION)
             {
-                _UpgradeToLatest(comms, version);
+                _UpgradeToLatest(comms, state, version);
                 return true;
             }
             return false;
@@ -259,12 +266,12 @@
 
         /**
          * We have detected that the state is out of date.  Let's upgrade it to the latest version
-         * @param state The current state
+         * @param comms Comms object to update
+         * @param state The comm state
+         * @param oldVersion Previous version we were on
          */
-        private static function _UpgradeToLatest(comms:IComm, oldVersion:Number):void
+        private static function _UpgradeToLatest(comms:IComm, state:ICommState, oldVersion:Number):void
         {
-            var state:ICommState = comms.GetState();
-
             // We'll need to extra all the values and make up a new object of the latest type
             var converted:Object = new Object();
 

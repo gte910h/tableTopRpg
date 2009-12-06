@@ -9,6 +9,8 @@
     import com.translator.comms.IComm;
     import com.translator.comms.ICommState;
     import com.translator.comms.IUser;
+    import flash.display.Sprite;
+    import flash.events.Event;
     import flash.events.EventDispatcher;
 
     /**
@@ -27,6 +29,11 @@
         private var mWaveState:WaveCommState;
 
         /**
+         * Sprite on which we will set on onEnterFrame for async stuff
+         */
+        private var mSprite:Sprite
+
+        /**
          * TEMP faked "Mode" of the Wave from CommMode.  We don't currently have real mode
          * control through wave-as-client lib, so I'm just making a slapdash version.
          */
@@ -34,12 +41,21 @@
         private static const WAVE_MODE_KEY:String = "TempWaveMode";
 
         /**
-         * Constructor, takes a set of domains
+         * Object we are waiting to submit
          */
-        public function WaveComm()
+        private var mPendingSubmit:Object;
+
+        /**
+         * Constructor, takes a set of domains
+         * @param sprite For an onEnterFrame
+         */
+        public function WaveComm(sprite:Sprite)
         {
             super();
 
+            mSprite = sprite;
+
+            mPendingSubmit = new Object();
             mWaveState = new WaveCommState();
 
             mWave = new Wave();
@@ -73,8 +89,41 @@
             if (shouldSubmit)
             {
                 var packed:Object = CommStateUtil.PackObject(delta);
-                mWave.submitDelta(packed);
+                for (var i:String in packed)
+                {
+                    mPendingSubmit[i] = packed[i];
+                }
+                _SetOnEnterFrame();
             }
+        }
+
+        /**
+         * Set an onEnterFrame for dispatching state
+         */
+        private function _SetOnEnterFrame():void
+        {
+            _ClearOnEnterFrame();
+            mSprite.addEventListener(Event.ENTER_FRAME, _OnEnterFrame);
+        }
+
+        /**
+         * Clear the onEnterFrame for dispatching state
+         */
+        private function _ClearOnEnterFrame():void
+        {
+            mSprite.removeEventListener(Event.ENTER_FRAME, _OnEnterFrame);
+        }
+
+        /**
+         * Called after we change state so we can gather a bunch of state changes at once and submit them all in 1 batch
+         * @param ev Event
+         */
+        private function _OnEnterFrame(ev:Event):void
+        {
+            _ClearOnEnterFrame();
+            var delta:Object = mPendingSubmit;
+            mPendingSubmit = new Object();
+            mWave.submitDelta(delta);
         }
 
         /**
@@ -82,10 +131,14 @@
          */
         private function _StateCallback(ws:WaveState):void
         {
-            mWaveState = new WaveCommState(ws);
+            var newState:WaveCommState = new WaveCommState(ws);
 
-            if (!CommStateUtil.UpdateVersionIfNecessary(this))
+            if (!CommStateUtil.UpdateVersionIfNecessary(this, newState))
             {
+
+                // Don't actually store state until we are sure it's been upgraded to latest
+                mWaveState = newState;
+
                 _DispatchStateChange(mWaveState);
 
                 // WaveComm ITSELF is also storing mode info about the mode it's in.
@@ -102,6 +155,9 @@
                         mTempWaveMode = waveMode;
                     }
                 }
+
+                // We are also now fully ready.  Tell everyone that.
+                _DispatchReady();
             }
         }
 
@@ -141,6 +197,24 @@
         public function GetViewingUser():IUser
         {
             return new WaveUser(mWave.getViewer());
+        }
+
+        /**
+         * Get the user who originally started this gadget
+         * @return The host user
+         */
+        public function GetHostUser():IUser
+        {
+            return new WaveUser(mWave.getHost());
+        }
+
+        /**
+         * Return whether the Viewer and the Host are the same user
+         * @return
+         */
+        public function IsViewerHost():Boolean
+        {
+            return (GetHostUser().IsSameAs(GetViewingUser()));
         }
     }
 }
