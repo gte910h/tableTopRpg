@@ -30,11 +30,12 @@
 
         /**
          * Stubbed out implementation of IComm, for when we're not actually in a Wave
+         * @param callWhenReady Function to call when ready
          * @param sprite For an onEnterFrame
          */
-        public function StubComm(sprite:Sprite)
+        public function StubComm(callWhenReady:Function, sprite:Sprite)
         {
-            super();
+            super(callWhenReady);
 
             mSprite = sprite;
 

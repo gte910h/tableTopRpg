@@ -47,11 +47,12 @@
 
         /**
          * Constructor, takes a set of domains
+         * @param callWhenReady Function to call when ready
          * @param sprite For an onEnterFrame
          */
-        public function WaveComm(sprite:Sprite)
+        public function WaveComm(callWhenReady:Function, sprite:Sprite)
         {
-            super();
+            super(callWhenReady);
 
             mSprite = sprite;
 
@@ -156,7 +157,7 @@
                 }
             }
 
-            // We got a state callback so we should be fully ready.  Tell everyone that.
+            // We are also now fully ready.  Tell everyone that.
             _DispatchReady();
         }
 

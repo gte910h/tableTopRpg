@@ -19,13 +19,6 @@
         function GetMode():String;
 
         /**
-         * Specify a function that will be called when the Comm is fully ready.
-         * May be called immediately if the thing is immediately ready.
-         * @param callback Function to call when ready.  Will pass the IComm object.
-         */
-        function CallWhenReady(callback:Function):void;
-
-        /**
          * Adds a callback for when the state is changed.
          * @param callback Will be passed an object of type CommEventStateChange
          */

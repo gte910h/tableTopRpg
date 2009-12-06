@@ -19,16 +19,14 @@
          */
         public static function MakeComm(sprite:Sprite, callWhenReady:Function):void
         {
-            var comms:IComm;
             if (ExternalInterface.available)
             {
-                comms = new WaveComm(sprite);
+                new WaveComm(callWhenReady, sprite);
             }
             else
             {
-                comms = new StubComm(sprite);
+                new StubComm(callWhenReady, sprite);
             }
-            comms.CallWhenReady(callWhenReady);
         }
     }
 }
