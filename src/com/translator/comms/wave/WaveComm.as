@@ -155,10 +155,10 @@
                         mTempWaveMode = waveMode;
                     }
                 }
-            }
 
-            // We are also now fully ready.  Tell everyone that.
-            _DispatchReady();
+                // We are also now fully ready.  Tell everyone that.
+                _DispatchReady();
+            }
         }
 
         /**
