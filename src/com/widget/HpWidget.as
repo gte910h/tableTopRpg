@@ -7,6 +7,7 @@
     import com.translator.comms.ICommState;
     import com.widget.Components.EditableText;
     import com.widget.Components.TextList;
+    import com.widget.util.DmMode;
     import flash.events.Event;
     import flash.events.MouseEvent;
     import mx.containers.Box;
@@ -46,6 +47,16 @@
         private var mHpContainerPanel:Panel;
 
         /**
+         * The info area for HP and such that is viewable by the DM only when in DM mode
+         */
+        private var mDmInfoArea:Container;
+
+        /**
+         * The info area for abstract HP information viewable by players when in DM mode (not much info)
+         */
+        private var mPlayerInfoArea:Container;
+
+        /**
          * Prefix we will send to every comm message.  This is to avoid conflicts
          * with any other widgets
          */
@@ -62,9 +73,15 @@
         private var mMaxHpText:EditableText;
 
         /**
-         * Max HP text field
+         *Current HP text field
          */
         private var mCurrentHpText:EditableText;
+
+        /**
+         * Textfield visible when in DM mode to indicate how much health the enemy has to the player -
+         * doesn't show actual numbers.
+         */
+        private var mPlayerHpInfoText:Text;
 
         /**
          * Temp HP text field
@@ -166,8 +183,17 @@
             leftVBox.setStyle("verticalGap", 0);
             _AddObjectToContainer(hBox, leftVBox, 70);
 
+            mDmInfoArea = _SetupInfoAreaDm(comms);
+            mPlayerInfoArea = _SetupInfoAreaPlayer(comms);
+
+            var hpContainerCanvas:Canvas = new Canvas();
+            hpContainerCanvas.verticalScrollPolicy = ScrollPolicy.OFF;
+            hpContainerCanvas.horizontalScrollPolicy = ScrollPolicy.OFF;
+            _AddObjectToContainer(hpContainerCanvas, mDmInfoArea);
+            _AddObjectToContainer(hpContainerCanvas, mPlayerInfoArea);
+
             mHpContainerPanel = new Panel();
-            _AddObjectToContainer(mHpContainerPanel,  _SetupInfoArea(comms));
+            _AddObjectToContainer(mHpContainerPanel, hpContainerCanvas);
             _AddObjectToContainer(leftVBox, mHpContainerPanel);
 
             mBottomBarViewMode = _SetupBottomViewBar(comms);
@@ -177,10 +203,13 @@
             var bottomHBox:HBox = new HBox();
             bottomHBox.setStyle("horizontalGap", 0);
             var bottomCanvas:Canvas = new Canvas();
+            bottomCanvas.verticalScrollPolicy = ScrollPolicy.OFF;
+            bottomCanvas.horizontalScrollPolicy = ScrollPolicy.OFF;
             _AddObjectToContainer(bottomCanvas, mBottomBarViewMode);
             _AddObjectToContainer(bottomCanvas, mBottomBarEditMode);
             _AddObjectToContainer(bottomHBox, bottomCanvas, 92); // Leaving some room for the edit button
-            _AddObjectToContainer(leftVBox, bottomHBox);
+            bottomHBox.percentWidth = 100;
+            leftVBox.addChild(bottomHBox);
 
             var rightVBox:VBox = new VBox();
             rightVBox.setStyle("verticalGap", 2);
@@ -190,17 +219,14 @@
             mStatusList = new TextList(comms);
             _AddObjectToContainer(rightVBox, mStatusList, 100, 68);
 
-
             mDmModeCheckbox = new CheckBox();
-
-            var dmModeContainer:Container = new HBox();
-            dmModeContainer.addChild(mDmModeCheckbox);
-            dmModeContainer.addChild(_CreateLabel("DM Mode"));
-
-            dmModeContainer.enabled = false;
+            mDmModeCheckbox.label = "DM Mode";
 
             mOptionsContainer = new VBox();
-            mOptionsContainer.addChild(dmModeContainer);
+            //var spacer:Spacer = new Spacer();
+            //spacer.percentHeight = 100;
+            //mOptionsContainer.addChild(spacer);
+            mOptionsContainer.addChild(mDmModeCheckbox);
 
             mLastUpdateContainer = new Canvas();
             mLastUpdateContainer.horizontalScrollPolicy = ScrollPolicy.OFF;
@@ -243,18 +269,32 @@
             mNameInput.text = state.GetValue(_GetCommKey(NAME_KEY), "John Smith");
             mHpContainerPanel.title = mNameInput.text;
 
-            // Change current HP color depending on status
+
+            // Change current HP colors and the Player-specific status textfield text and color
+            // based on HP of the character vs. his max
             if (currentHp == maxHp)
             {
                 mCurrentHpText.setStyle("color", 0x008000);
+                mPlayerHpInfoText.text = "Perfect";
+                mPlayerHpInfoText.setStyle("color", 0x008000);
             }
-            else if (currentHp <= Math.floor(maxHp * .5))
+            else if (0 >= currentHp)
+            {
+                mPlayerHpInfoText.text = "Down";
+                mPlayerHpInfoText.setStyle("color", 0xf00000);
+                mCurrentHpText.setStyle("color", 0xf00000);
+            }
+            else if (Math.floor(maxHp * .5) >= currentHp)
             {
                 mCurrentHpText.setStyle("color", 0xc00000);
+                mPlayerHpInfoText.text = "Bloodied";
+                mPlayerHpInfoText.setStyle("color", 0xa00000);
             }
             else
             {
                 mCurrentHpText.setStyle("color", 0x000000);
+                mPlayerHpInfoText.text = "Healthy";
+                mPlayerHpInfoText.setStyle("color", 0x000000);
             }
 
             // Has temp HP or not?
@@ -267,15 +307,51 @@
                 mTempHpText.setStyle("color", 0x000000);
             }
 
-            // Show a nice update of who changed what to do what
-            var lastUpdate:String = state.GetValue(_GetCommKey(LAST_UPDATE_KEY), "");
-            var lastUpdateUser:String = state.GetValue(_GetCommKey(LAST_UPDATE_USER_KEY), "");
-            var fullUpdateText:String = lastUpdate;
-            if ("" != lastUpdateUser)
+
+            // Only the host is allowed to change the DM mode.
+            var isViewerHost:Boolean = mComms.IsViewerHost();
+            mDmModeCheckbox.enabled = isViewerHost;
+
+            // Figure out whether we should be in DM mode or not, and show it on the checkbox
+            var isDmModeOn:Boolean = DmMode.IsDmModeOn(state) && DmMode.IsDmModeSpecified(state);
+            mDmModeCheckbox.selected = isDmModeOn;
+
+
+            // IF DM mode is on and we are not the host, a variety of things become hidden / disabled
+            if (isDmModeOn && !isViewerHost)
             {
-                fullUpdateText = lastUpdateUser + ":\n" + fullUpdateText;
+                mPlayerInfoArea.visible = true;
+                mDmInfoArea.visible = false;
+                mBottomBarEditMode.enabled = false;
+                mBottomBarViewMode.enabled = false;
+
+                // Instead of the last changed status, since only the DM can actually change anything, let's show
+                // some text to say what's going on.
+                mLastUpdateText.text = "DM Mode active. You may not make changes.";
             }
-            mLastUpdateText.text = fullUpdateText;
+            else
+            {
+                mPlayerInfoArea.visible = false;
+                mDmInfoArea.visible = true;
+                mBottomBarEditMode.enabled = true;
+                mBottomBarViewMode.enabled = true;
+
+                // Show a nice update of who changed what to what last time someone changes something
+                var lastUpdate:String = state.GetValue(_GetCommKey(LAST_UPDATE_KEY), "");
+                var lastUpdateUser:String = state.GetValue(_GetCommKey(LAST_UPDATE_USER_KEY), "");
+                var fullUpdateText:String = lastUpdate;
+                if ("" != lastUpdateUser)
+                {
+                    fullUpdateText = lastUpdateUser + ":\n" + fullUpdateText;
+                }
+                mLastUpdateText.text = fullUpdateText;
+
+                // If DM mode is active, we must be the DM.  Mention this.
+                if (isDmModeOn)
+                {
+                    mHpContainerPanel.title += " (DM Mode)";
+                }
+            }
         }
 
         /**
@@ -303,6 +379,9 @@
                 sendObj[_GetCommKey(LAST_UPDATE_USER_KEY)] = mComms.GetViewingUser().GetName();
                 mComms.SubmitDelta(sendObj);
             }
+
+            // Also send an update for the DM Mode
+            DmMode.SetDmMode(mComms, mDmModeCheckbox.selected);
         }
 
         /**
@@ -333,9 +412,10 @@
         }
 
         /**
-         * Set up the area that will show all the actual information
+         * Set up the area that will show all the actual information, either by the DM when in DM mode
+         * or for everyone when not in DM mode
          */
-        private function _SetupInfoArea(comms:IComm):Container
+        private function _SetupInfoAreaDm(comms:IComm):Container
         {
             var maxHpContainer:Container = new HBox();4
             maxHpContainer.setStyle("horizontalGap", 0);
@@ -382,6 +462,22 @@
             _AddObjectToContainer(hLayout, currentHpContainer, 62);
 
             return hLayout;
+        }
+
+        /**
+         * Set up the area that will show some abstract information, viewable by Players when in
+         * DM mode
+         */
+        private function _SetupInfoAreaPlayer(comms:IComm):Container
+        {
+            var layoutArea :Container = new VBox();
+            var spacer:Spacer = new Spacer();
+            _AddObjectToContainer(layoutArea, spacer, 100, 10);
+            mPlayerHpInfoText = new Text();
+            mPlayerHpInfoText.setStyle("textAlign", "center");
+            mPlayerHpInfoText.setStyle("fontSize", 40);
+            _AddObjectToContainer(layoutArea, mPlayerHpInfoText);
+            return layoutArea;
         }
 
         /**

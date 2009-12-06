@@ -30,7 +30,7 @@
          */
         public static function IsDmModeSpecified(commState:ICommState):Boolean
         {
-            return (null != commState.GetKeys()[DM_MODE_KEY]);
+            return (null != commState.GetValue(DM_MODE_KEY, null));
         }
 
         /**
@@ -41,7 +41,7 @@
         public static function SetDmMode(comm:IComm, dmModeOn:Boolean):void
         {
             var delta:Object = new Object();
-            delta[DM_MODE_KEY] = dmModeOn
+            delta[DM_MODE_KEY] = dmModeOn;
             comm.SubmitDelta(delta);
         }
     }

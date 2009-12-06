@@ -96,7 +96,7 @@
                         }
                     }
 
-                    case "booleanzzz":
+                    case "boolean":
                     {
                         var asBoolean:Boolean = (input as Boolean);
                         return "b" + input.toString();
@@ -122,7 +122,7 @@
                 case "s":   return theRest;
                 case "f":   return parseFloat(theRest);
                 case "i":   return parseInt(theRest);
-                case "b":   return Boolean(theRest);
+                case "b":   return "true" == theRest;
                 case "a":
                 {
                     var arrayVals:String = theRest.substr(1, theRest.length - 2);
