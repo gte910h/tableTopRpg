@@ -135,7 +135,6 @@
 
             if (!CommStateUtil.UpdateVersionIfNecessary(this, newState))
             {
-
                 // Don't actually store state until we are sure it's been upgraded to latest
                 mWaveState = newState;
 
@@ -155,10 +154,10 @@
                         mTempWaveMode = waveMode;
                     }
                 }
-
-                // We are also now fully ready.  Tell everyone that.
-                _DispatchReady();
             }
+
+            // We got a state callback so we should be fully ready.  Tell everyone that.
+            _DispatchReady();
         }
 
         /**
