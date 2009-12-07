@@ -124,6 +124,15 @@
             _ClearOnEnterFrame();
             var delta:Object = mPendingSubmit;
             mPendingSubmit = new Object();
+
+            // Before we send off any data, let's also pack our own Mode along with.
+            // This would normally be done through a normal Submit, but Mode is not really
+            // supposed to be stored in here anyway.  We're just tacking it on because currently
+            // the library we are using can't access the Wave mode.
+            var modeDelta:Object = { WAVE_MODE_KEY : mTempWaveMode };
+            modeDelta = CommStateUtil.PackObject(mTempWaveMode);
+            delta[WAVE_MODE_KEY] = modeDelta[WAVE_MODE_KEY];
+
             mWave.submitDelta(delta);
         }
 
@@ -138,8 +147,6 @@
             {
                 // Don't actually store state until we are sure it's been upgraded to latest
                 mWaveState = newState;
-
-                _DispatchStateChange(mWaveState);
 
                 // WaveComm ITSELF is also storing mode info about the mode it's in.
                 // Not dispatching an event here because it messes with the StateChange event stuff
@@ -156,7 +163,10 @@
                     }
                 }
 
-                // We are also now fully ready.  Tell everyone that.
+                // Tell everyone about the state change
+                _DispatchStateChange(mWaveState);
+
+                // Tell everything that we're ready to go
                 _DispatchReady();
             }
         }
@@ -172,11 +182,6 @@
             {
                 mTempWaveMode = newMode;
                 _DispatchModeChange(mTempWaveMode);
-
-                // Save that off for next time
-                var modeChange:Object = new Object();
-                modeChange[WAVE_MODE_KEY] = newMode;
-                SubmitDelta(modeChange);
             }
         }
 
