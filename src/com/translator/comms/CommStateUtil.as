@@ -8,25 +8,6 @@
     public class CommStateUtil
     {
         /**
-         * We are going to track what "Version" of the Comms we're in.  The verison is the data
-         * representation.  For example, version 0 (the default) contained Strings and Numbers,
-         * both stored as Strings.  Version 1 will contain Strings and Numbers, stored as Strings
-         * with attached type information so we can properly cast them later.  etc.  When the Util
-         * starts up it will upgrade the state to latest.
-         */
-        private static const COMM_VERSION_KEY:String = "CommVersion";
-
-        /**
-         * If you change the data format, you must be updating the UnpackValue() and PackValue() functions.  But
-         * we want to maintain backward compatibility.
-         *
-         * In order to maintain backward compatibility, also update this number.  Then demote the UnpackValue() function
-         * to _UnpackValueV#() and return it in the _GetUnpackValueFunction() function for the old version number.  You
-         * can scrap the old PackValue() function because we won't be packing any more old data.
-         */
-        private static const LATEST_VERSION:Number = 1;
-
-        /**
          * Take an object with a bunch of typed values and convert it to a packed-up object
          * we can send over Comm.
          * @param input Incoming object
@@ -173,7 +154,7 @@
          * after the array
          * @param arrayString String that we expect to be the insides of an array
          * @param startIndex Where we should begin searching for the next item
-         * @return
+         * @return The start of the next item (often a pipe, but could be the end of an array or something)
          */
         private static function _FindNextArrayValueIndex(arrayString:String, startIndex:Number):Number
         {
@@ -251,86 +232,12 @@
          * Ask the util to update to the latest state if necessary
          * @param comms Comms object to update
          * @param state The comm state
-         * @return True if an update was necessary and has been sent, false if not
+         * @return True if an update was necessary and has been sent, false if not and everything is peachy
          */
         public static function UpdateVersionIfNecessary(comms:IComm, state:ICommState):Boolean
         {
-            // TEMP Disabling version updating to see if that may be causing Wave to not boot up properly with no State data.
+            // TODO Get some sort of version updating working
             return false;
-
-            var version:Number = state.GetValue(COMM_VERSION_KEY, 0);
-            if (version < LATEST_VERSION)
-            {
-                _UpgradeToLatest(comms, state, version);
-                return true;
-            }
-            return false;
-        }
-
-        /**
-         * We have detected that the state is out of date.  Let's upgrade it to the latest version
-         * @param comms Comms object to update
-         * @param state The comm state
-         * @param oldVersion Previous version we were on
-         */
-        private static function _UpgradeToLatest(comms:IComm, state:ICommState, oldVersion:Number):void
-        {
-            // We'll need to extra all the values and make up a new object of the latest type
-            var converted:Object = new Object();
-
-            // What unpacking function should we use for the old version?
-            var unpackFunction:Function = _GetUnpackValueFunction(oldVersion);
-
-            // Convert every value in the state object
-            var keys:Array = state.GetKeys();
-            var numKeys:Number = keys.length;
-            for (var i:Number = 0 ; i < numKeys ; ++i)
-            {
-                var key:String = keys[i];
-                var rawValue:String = state.GetRawData(key);
-                var unpackedValue:* = unpackFunction(rawValue);
-                converted[key] = unpackedValue;
-            }
-
-            // We also, of course, want to upgrade to the latest version
-            converted[COMM_VERSION_KEY] = LATEST_VERSION;
-
-            // Submit the new state.  It will get repacked using the latest packing technique
-            comms.SubmitDelta(converted);
-        }
-
-        /**
-         * Return the correct function to unpack values of a given version
-         * @param version Which version we're looking at
-         * @return
-         */
-        private static function _GetUnpackValueFunction(version:Number):Function
-        {
-            switch (version)
-            {
-                case 0:     return _UnpackValueV0;
-                default:    throw ("Not sure how to unpack values from version " + version);
-            }
-        }
-
-        /**
-         * Unpack a value, version 0
-         * @param input Input string
-         * @return Output value
-         */
-        private static function _UnpackValueV0(input:String):*
-        {
-            // It's either a Number or a String.  If it's a String, \
-            // it's the raw input value.
-            var asNumber:Number = (input as Number);
-            if (isNaN(asNumber))
-            {
-                return input;
-            }
-            else
-            {
-                return asNumber;
-            }
         }
     }
 }
