@@ -255,6 +255,9 @@
          */
         public static function UpdateVersionIfNecessary(comms:IComm, state:ICommState):Boolean
         {
+            // TEMP Disabling version updating to see if that may be causing Wave to not boot up properly with no State data.
+            return false;
+
             var version:Number = state.GetValue(COMM_VERSION_KEY, 0);
             if (version < LATEST_VERSION)
             {
