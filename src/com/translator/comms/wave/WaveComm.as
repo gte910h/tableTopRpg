@@ -89,10 +89,9 @@
 
             if (shouldSubmit)
             {
-                var packed:Object = CommStateUtil.PackObject(delta);
-                for (var i:String in packed)
+                for (var i:String in delta)
                 {
-                    mPendingSubmit[i] = packed[i];
+                    mPendingSubmit[i] = delta[i];
                 }
                 _SetOnEnterFrame();
             }
@@ -129,11 +128,12 @@
             // This would normally be done through a normal Submit, but Mode is not really
             // supposed to be stored in here anyway.  We're just tacking it on because currently
             // the library we are using can't access the Wave mode.
-            var modeDelta:Object = { WAVE_MODE_KEY : mTempWaveMode };
-            modeDelta = CommStateUtil.PackObject(modeDelta);
-            delta[WAVE_MODE_KEY] = modeDelta[WAVE_MODE_KEY];
+            if (null != mTempWaveMode)
+            {
+                delta[WAVE_MODE_KEY] = mTempWaveMode;
+            }
 
-            mWave.submitDelta(delta);
+            mWave.submitDelta(CommStateUtil.PackObject(delta));
         }
 
         /**
