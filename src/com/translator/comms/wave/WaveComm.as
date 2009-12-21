@@ -130,7 +130,7 @@
             // supposed to be stored in here anyway.  We're just tacking it on because currently
             // the library we are using can't access the Wave mode.
             var modeDelta:Object = { WAVE_MODE_KEY : mTempWaveMode };
-            modeDelta = CommStateUtil.PackObject(mTempWaveMode);
+            modeDelta = CommStateUtil.PackObject(modeDelta);
             delta[WAVE_MODE_KEY] = modeDelta[WAVE_MODE_KEY];
 
             mWave.submitDelta(delta);
